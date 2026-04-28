@@ -17,6 +17,7 @@
 #include "common/assembler.h"
 #include "common/cpu_list.h"
 #include "common/String.h"
+#include "common/StringTokenizer.h"
 #include "common/UtilContext.h"
 #include "disasm/msp430.h"
 #include "simulate/null.h"
@@ -179,8 +180,8 @@ void UtilContext::disasm(uint32_t start, uint32_t end)
 
 void UtilContext::sim_show_info()
 {
-  uint32_t start = memory.low_address / bytes_per_address;
-  uint32_t end = memory.high_address / bytes_per_address;
+  uint32_t start = memory.low_address  / bytes_per_address;
+  uint32_t end   = memory.high_address / bytes_per_address;
 
   printf("Start address: 0x%04x (%d)\n", start, start);
   printf("  End address: 0x%04x (%d)\n", end, end);
@@ -663,6 +664,28 @@ const char *UtilContext::get_num(const char *token, uint32_t *num)
   *num = (n * sign) & 0xffffffff;
 
   return token + s;
+}
+
+bool UtilContext::get_range(const char *text, Range &range)
+{
+  StringTokenizer tokenizer(text);
+
+  range.start = memory.low_address;
+  range.end   = memory.high_address;
+
+  if (tokenizer.is_uint32())
+  {
+    if (tokenizer.pop_uint32(range.start) == false) { return false; }
+  }
+
+  char ch = tokenizer.pop_char();
+  if (ch == 0)   { return true;  }
+  if (ch != '-') { return false; }
+  if (tokenizer.is_empty()) { return true; }
+
+  if (tokenizer.pop_uint32(range.end) == false) { return false; }
+
+  return true;
 }
 
 int UtilContext::get_range(const char *text, uint32_t *start, uint32_t *end)

@@ -60,7 +60,7 @@ clean:
 	@rm -f tests/unit/macros/macros_test
 	@rm -f tests/unit/memory/memory_test
 	@rm -f tests/unit/symbols/symbols_test
-	@rm -f tests/unit/util/util_test
+	@rm -f tests/unit/util/util_context_test
 	@rm -f tests/symbol_address/symbol_address
 	@echo "Clean!"
 
@@ -75,7 +75,7 @@ tests:
 	@cd tests/unit/macros && make && ./macro_test && make clean
 	@cd tests/unit/memory && make && ./memory_test && make clean
 	@cd tests/unit/symbols && make && ./symbols_test && make clean
-	@cd tests/unit/util && make && ./util_test && make clean
+	@cd tests/unit/util && make && ./util_context_test && make clean
 	@cd tests/symbol_address && make && ./symbol_address && make clean
 	@cd tests/other && make && make run && make clean
 	@cd tests/disasm && make

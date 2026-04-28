@@ -14,6 +14,7 @@
 
 #include "common/cpu_list.h"
 #include "common/Memory.h"
+#include "common/Range.h"
 #include "common/Symbols.h"
 #include "common/String.h"
 #include "simulate/msp430.h"
@@ -51,8 +52,10 @@ public:
 
   static const char *get_num(const char *token, uint32_t *num);
 
+  bool get_range(const char *text, Range &range);
+
   // Converts text passed in on the command line to a start / end int.
-  int get_range(const char *token, uint32_t *start, uint32_t *end);
+  int get_range(const char *text, uint32_t *start, uint32_t *end);
 
   Memory memory;
   Symbols symbols;
