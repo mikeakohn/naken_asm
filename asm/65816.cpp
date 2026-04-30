@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2026 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
@@ -17,9 +17,9 @@
 
 #include "asm/common.h"
 #include "asm/65816.h"
-#include "common/assembler.h"
-#include "common/eval_expression.h"
-#include "common/tokens.h"
+#include "core/assembler.h"
+#include "core/eval_expression.h"
+#include "core/tokens.h"
 #include "disasm/65816.h"
 #include "table/65816.h"
 

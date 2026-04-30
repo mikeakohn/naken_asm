@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -16,9 +16,9 @@
 
 #include "asm/common.h"
 #include "asm/powerpc.h"
-#include "common/assembler.h"
-#include "common/tokens.h"
-#include "common/eval_expression.h"
+#include "core/assembler.h"
+#include "core/tokens.h"
+#include "core/eval_expression.h"
 #include "table/powerpc.h"
 
 #define MAX_OPERANDS 5

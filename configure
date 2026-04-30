@@ -76,12 +76,11 @@ CPUS=" \
 ASM_OBJS="common.o"
 DISASM_OBJS=""
 TABLE_OBJS=""
-UTIL_OBJS="UtilContext.o"
 SIM_OBJS="null.o"
 NO_MSP430="-DNO_MSP430"
 DFLAGS_ALL=""
 
-COMMON_OBJS="
+CORE_OBJS="
   add_bin.o
   assembler.o
   cpu_list.o
@@ -94,18 +93,21 @@ COMMON_OBJS="
   imports_ar.o
   imports_get_int.o
   imports_obj.o
-  Linker.o
   print_error.o
+  tokens.o
+  Linker.o
   Macros.o
   Memory.o
   MemoryPool.o
   Operator.o
+  Symbols.o
+  UtilContext.o
+  Var.o"
+
+COMMON_OBJS="
   String.o
   StringHeap.o
-  StringTokenizer.o
-  Symbols.o
-  tokens.o
-  Var.o"
+  StringTokenizer.o"
 
 FILEIO_OBJS="
   FileIo.o
@@ -798,12 +800,12 @@ echo "INSTALL_PREFIX=${INSTALL_PREFIX}" >> config.mak
 echo "INCLUDE_PATH=${INCLUDE_PATH}" >> config.mak
 echo "CONFIG_EXT=${CONFIG_EXT}" >> config.mak
 output_objs ASM_OBJS asm "${ASM_OBJS}"
-output_objs DISASM_OBJS disasm "${DISASM_OBJS}"
-output_objs TABLE_OBJS table "${TABLE_OBJS}"
-output_objs UTIL_OBJS common "${UTIL_OBJS}"
 output_objs COMMON_OBJS common "${COMMON_OBJS}"
-output_objs SIM_OBJS simulate "${SIM_OBJS}"
+output_objs CORE_OBJS core "${CORE_OBJS}"
+output_objs DISASM_OBJS disasm "${DISASM_OBJS}"
 output_objs FILEIO_OBJS fileio "${FILEIO_OBJS}"
+output_objs SIM_OBJS simulate "${SIM_OBJS}"
+output_objs TABLE_OBJS table "${TABLE_OBJS}"
 echo >> config.mak
 
 echo

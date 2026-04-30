@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2026 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
@@ -14,7 +14,7 @@
 #ifndef NAKEN_ASM_TABLE_65816_H
 #define NAKEN_ASM_TABLE_65816_H
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 struct _table_65816
 {

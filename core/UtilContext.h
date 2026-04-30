@@ -12,11 +12,11 @@
 #ifndef UTIL_CONTEXT_H
 #define UTIL_CONTEXT_H
 
-#include "common/cpu_list.h"
-#include "common/Memory.h"
 #include "common/Range.h"
-#include "common/Symbols.h"
 #include "common/String.h"
+#include "core/cpu_list.h"
+#include "core/Memory.h"
+#include "core/Symbols.h"
 #include "simulate/msp430.h"
 
 class UtilContext

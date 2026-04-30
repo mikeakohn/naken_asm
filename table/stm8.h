@@ -5,14 +5,14 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
 #ifndef NAKEN_ASM_TABLE_STM8_H
 #define NAKEN_ASM_TABLE_STM8_H
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 #define ST7_NO 0
 #define ST7_YES 1

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -16,10 +16,10 @@
 
 #include "asm/common.h"
 #include "asm/mips.h"
-#include "common/assembler.h"
-#include "common/tokens.h"
-#include "common/eval_expression.h"
-#include "common/imports_obj.h"
+#include "core/assembler.h"
+#include "core/tokens.h"
+#include "core/eval_expression.h"
+#include "core/imports_obj.h"
 #include "table/mips.h"
 
 enum

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -15,9 +15,9 @@
 
 #include "asm/common.h"
 #include "asm/z80.h"
-#include "common/assembler.h"
-#include "common/tokens.h"
-#include "common/eval_expression.h"
+#include "core/assembler.h"
+#include "core/tokens.h"
+#include "core/eval_expression.h"
 #include "table/z80.h"
 
 #ifdef REG_SP

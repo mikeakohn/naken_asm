@@ -5,14 +5,14 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
 #ifndef NAKEN_ASM_DISASM_68000_H
 #define NAKEN_ASM_DISASM_68000_H
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 int disasm_68000(
   Memory *memory,

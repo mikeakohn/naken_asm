@@ -20,10 +20,10 @@
 #include <readline/history.h>
 #endif
 
-#include "common/assembler.h"
 #include "common/String.h"
-#include "common/UtilContext.h"
-#include "common/version.h"
+#include "core/assembler.h"
+#include "core/UtilContext.h"
+#include "core/version.h"
 #include "fileio/file.h"
 
 enum

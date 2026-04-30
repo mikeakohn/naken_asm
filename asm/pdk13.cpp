@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -17,8 +17,8 @@
 #include "asm/pdk13.h"
 #include "asm/pdk_parse.h"
 #include "asm/common.h"
-#include "common/assembler.h"
-#include "common/tokens.h"
+#include "core/assembler.h"
+#include "core/tokens.h"
 #include "table/pdk13.h"
 
 int parse_instruction_pdk13(AsmContext *asm_context, char *instr)

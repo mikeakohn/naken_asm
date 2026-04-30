@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -13,8 +13,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include "common/assembler.h"
-#include "common/print_error.h"
+#include "core/assembler.h"
+#include "core/print_error.h"
 
 void print_error(AsmContext *asm_context, const char *s)
 {

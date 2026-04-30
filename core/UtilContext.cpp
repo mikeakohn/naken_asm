@@ -14,11 +14,11 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "common/assembler.h"
-#include "common/cpu_list.h"
 #include "common/String.h"
 #include "common/StringTokenizer.h"
-#include "common/UtilContext.h"
+#include "core/assembler.h"
+#include "core/cpu_list.h"
+#include "core/UtilContext.h"
 #include "disasm/msp430.h"
 #include "simulate/null.h"
 

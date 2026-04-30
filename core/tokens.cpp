@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2025 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -17,9 +17,9 @@
 #include <inttypes.h>
 #include <assert.h>
 
-#include "common/assembler.h"
-#include "common/Macros.h"
-#include "common/tokens.h"
+#include "core/assembler.h"
+#include "core/Macros.h"
+#include "core/tokens.h"
 
 //#define assert(a) if (! a) { printf("assert failed on line %s:%d\n", __FILE__, __LINE__); raise(SIGABRT); }
 

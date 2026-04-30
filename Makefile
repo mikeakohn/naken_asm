@@ -4,11 +4,12 @@ vpath=asm:disasm:common:simulate
 
 default:
 	@mkdir -p build/asm
-	@mkdir -p build/disasm
-	@mkdir -p build/table
 	@mkdir -p build/common
-	@mkdir -p build/simulate
+	@mkdir -p build/core
+	@mkdir -p build/disasm
 	@mkdir -p build/fileio
+	@mkdir -p build/simulate
+	@mkdir -p build/table
 	$(MAKE) -C build
 
 all: default
@@ -50,8 +51,8 @@ archive:
 clean:
 	@rm -f naken_asm naken_util *.exe *.o *.hex a.out *.lst *.ndbg *.elf *.srec
 	@rm -rf build/*.o build/*.a
-	@rm -rf build/asm build/disasm build/table build/common
-	@rm -rf build/simulate build/fileio
+	@rm -rf build/asm build/common build/core build/disasm build/fileio
+	@rm -rf build/simulate build/table
 	@cd tests/unit/common && make clean
 	@rm -f tests/unit/eval_expression/unit_test
 	@rm -f tests/unit/eval_expression_ex/unit_test

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -14,8 +14,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "common/MemoryPool.h"
-#include "common/Symbols.h"
+#include "core/MemoryPool.h"
+#include "core/Symbols.h"
 
 Symbols::Symbols() :
   memory_pool   (NULL),

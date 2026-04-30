@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/assembler.h"
-#include "common/tokens.h"
+#include "core/assembler.h"
+#include "core/tokens.h"
 
 int errors = 0;
 

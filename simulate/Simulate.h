@@ -15,7 +15,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "common/Memory.h"
+#include "core/Memory.h"
 
 class Simulate
 {

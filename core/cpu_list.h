@@ -5,14 +5,14 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2025 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
 #ifndef NAKEN_ASM_CPU_LIST_H
 #define NAKEN_ASM_CPU_LIST_H
 
-#include "common/Linker.h"
+#include "core/Linker.h"
 #include "simulate/Simulate.h"
 
 typedef Simulate *(*simulate_init_t)(Memory *);

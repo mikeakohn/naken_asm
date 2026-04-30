@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/MemoryPool.h"
+#include "core/MemoryPool.h"
 
 MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len)
 {

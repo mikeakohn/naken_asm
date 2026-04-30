@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2025 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -15,17 +15,17 @@
 
 #include "asm/common.h"
 #include "asm/msp430.h"
-#include "common/assembler.h"
-#include "common/cpu_list.h"
-#include "common/directives.h"
-#include "common/directives_data.h"
-#include "common/directives_if.h"
-#include "common/directives_include.h"
-#include "common/eval_expression.h"
-#include "common/tokens.h"
-#include "common/ifdef_expression.h"
-#include "common/Macros.h"
-#include "common/print_error.h"
+#include "core/assembler.h"
+#include "core/cpu_list.h"
+#include "core/directives.h"
+#include "core/directives_data.h"
+#include "core/directives_if.h"
+#include "core/directives_include.h"
+#include "core/eval_expression.h"
+#include "core/tokens.h"
+#include "core/ifdef_expression.h"
+#include "core/Macros.h"
+#include "core/print_error.h"
 #include "disasm/msp430.h"
 
 AsmContext::AsmContext() :

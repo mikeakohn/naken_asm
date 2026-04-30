@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -14,7 +14,7 @@
 #ifndef NAKEN_ASM_DISASM_AGC_H
 #define NAKEN_ASM_DISASM_AGC_H
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 int disasm_agc(
   Memory *memory,

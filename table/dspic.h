@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 #define FLAG_NONE 0x0000
 #define FLAG_B 0x0001        // byte

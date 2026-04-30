@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/util_context.h"
+#include "core/UtilContext.h"
 #include "fileio/file.h"
 
 // FIXME: Need a hook to sh_name: 105 (.dynstr) to make this work.

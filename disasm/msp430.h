@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 int get_register_msp430(const char *token);
 int get_cycle_count(uint16_t opcode);

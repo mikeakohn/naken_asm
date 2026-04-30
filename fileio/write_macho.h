@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "common/Memory.h"
-#include "common/Symbols.h"
+#include "core/Memory.h"
+#include "core/Symbols.h"
 
 int write_macho(
   Memory *memory,

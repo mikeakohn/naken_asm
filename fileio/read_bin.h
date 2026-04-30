@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "common/Memory.h"
+#include "core/Memory.h"
 
 int read_bin(const char *filename, Memory *memory, uint32_t start_address);
 

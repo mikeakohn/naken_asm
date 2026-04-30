@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn, Joe Davisson
+ * Copyright 2010-2026 by Michael Kohn, Joe Davisson
  *
  * 65816 by Joe Davisson
  *
@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 int disasm_65816(
   Memory *memory,

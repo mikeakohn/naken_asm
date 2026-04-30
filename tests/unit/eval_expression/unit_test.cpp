@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/eval_expression.h"
-#include "common/tokens.h"
+#include "core/eval_expression.h"
+#include "core/tokens.h"
 
 int errors = 0;
 

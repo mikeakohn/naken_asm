@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -14,13 +14,13 @@
 #include <string.h>
 
 #include "asm/common.h"
-#include "common/add_bin.h"
-#include "common/assembler.h"
-#include "common/cpu_list.h"
-#include "common/eval_expression.h"
-#include "common/directives_data.h"
-#include "common/directives_if.h"
-#include "common/directives_include.h"
+#include "core/add_bin.h"
+#include "core/assembler.h"
+#include "core/cpu_list.h"
+#include "core/eval_expression.h"
+#include "core/directives_data.h"
+#include "core/directives_if.h"
+#include "core/directives_include.h"
 
 int parse_org(AsmContext *asm_context)
 {

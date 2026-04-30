@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2025 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -13,11 +13,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/assembler.h"
-#include "common/ifdef_expression.h"
-#include "common/Macros.h"
-#include "common/Symbols.h"
-#include "common/tokens.h"
+#include "core/assembler.h"
+#include "core/ifdef_expression.h"
+#include "core/tokens.h"
+#include "core/Macros.h"
+#include "core/Symbols.h"
 
 enum
 {

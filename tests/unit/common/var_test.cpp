@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#include "common/Var.h"
+#include "core/Var.h"
 
 #define PRINT_VAR(var) \
   printf("int32=%d/%x int64=%" PRId64 "/%" PRIx64 " float=%f double=%f   (%d)\n", \

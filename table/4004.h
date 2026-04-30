@@ -5,14 +5,14 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
 #ifndef NAKEN_ASM_TABLE_4004_H
 #define NAKEN_ASM_TABLE_4004_H
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 enum
 {

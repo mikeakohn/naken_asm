@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/Memory.h"
-#include "common/MemoryPage.h"
+#include "core/Memory.h"
+#include "core/MemoryPage.h"
 
 int test_Memory()
 {

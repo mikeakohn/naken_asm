@@ -1,20 +1,19 @@
 include ../config.mak
 
-VPATH=../asm:../disasm:../common:../simulate:../table:../fileio:..
+VPATH=../asm:../common:../core:../disasm:../fileio:../simulate:../table:..
 
 OBJECTS= \
   $(ASM_OBJS) \
-  $(DISASM_OBJS) \
   $(COMMON_OBJS) \
-  $(SIM_OBJS) \
-  $(TABLE_OBJS) \
-  $(UTIL_OBJS) \
+  $(CORE_OBJS) \
+  $(DISASM_OBJS) \
   $(FILEIO_OBJS) \
-  $(PROG_OBJS)
+  $(SIM_OBJS) \
+  $(TABLE_OBJS)
 
 default: $(OBJECTS)
-	@ar cr naken_asm.a $(ASM_OBJS) $(DISASM_OBJS) $(COMMON_OBJS) \
-	  $(SIM_OBJS) $(TABLE_OBJS) $(UTIL_OBJS) $(FILEIO_OBJS) $(PROG_OBJS)
+	@ar cr naken_asm.a $(ASM_OBJS) $(COMMON_OBJS) $(CORE_OBJS) \
+	  $(DISASM_OBJS) $(FILEIO_OBJS) $(SIM_OBJS) $(TABLE_OBJS)
 	$(CXX) -o ../naken_asm$(CONFIG_EXT) ../main/naken_asm.cpp \
 	   naken_asm.a \
 	    -DINCLUDE_PATH="\"$(INCLUDE_PATH)\"" \
@@ -29,21 +28,21 @@ library: default
 	  naken_asm.a -shared -I.. -fPIC \
 	  $(CFLAGS)
 
-common/assembler.o: common/assembler.cpp common/assembler.h
+core/assembler.o: core/assembler.cpp core/assembler.h
 	$(CXX) -c $< -o $*.o $(CFLAGS) $(DFLAGS) -I..
 
-common/cpu_list.o: common/cpu_list.cpp common/cpu_list.h
+core/cpu_list.o: core/cpu_list.cpp core/cpu_list.h
 	$(CXX) -c $< -o $*.o $(CFLAGS) $(DFLAGS) -I..
 
 %.o: %.c %.h
-	$(CC) -c $< -o $*.o $(CFLAGS) -I..
+	$(CPP) -c $< -o $*.o $(CFLAGS) -I..
 
 %.o: %.c
-	$(CC) -c $< -o $*.o $(CFLAGS) -I..
+	$(CPP) -c $< -o $*.o $(CFLAGS) -I..
 
-%.o: %.cpp %.h common/cpu_list.h
+%.o: %.cpp %.h core/cpu_list.h
 	$(CXX) -c $< -o $*.o $(CFLAGS) -I..
 
-%.o: %.cpp common/cpu_list.h
+%.o: %.cpp core/cpu_list.h
 	$(CXX) -c $< -o $*.o $(CFLAGS) -I..
 

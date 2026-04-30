@@ -3,9 +3,9 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "common/eval_expression.h"
-#include "common/tokens.h"
-#include "common/Var.h"
+#include "core/eval_expression.h"
+#include "core/tokens.h"
+#include "core/Var.h"
 
 int errors = 0;
 

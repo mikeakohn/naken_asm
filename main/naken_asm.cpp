@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2025 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -14,11 +14,11 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "common/assembler.h"
-#include "common/directives_include.h"
-#include "common/Macros.h"
-#include "common/tokens.h"
-#include "common/version.h"
+#include "core/assembler.h"
+#include "core/directives_include.h"
+#include "core/tokens.h"
+#include "core/version.h"
+#include "core/Macros.h"
 #include "fileio/file.h"
 
 const char *credits =

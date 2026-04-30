@@ -5,14 +5,14 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
 #ifndef NAKEN_ASM_DISASM_PS2_EE_VU_H
 #define NAKEN_ASM_DISASM_PS2_EE_VU_H
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 #include "table/ps2_ee_vu.h"
 
 #define PS2_EE_VU0 0

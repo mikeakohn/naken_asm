@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -14,9 +14,9 @@
 
 #include <stdint.h>
 
-#include "common/add_bin.h"
-#include "common/assembler.h"
-#include "common/tokens.h"
+#include "core/add_bin.h"
+#include "core/assembler.h"
+#include "core/tokens.h"
 
 int ignore_operand(AsmContext *asm_context);
 int ignore_paren_expression(AsmContext *asm_context);

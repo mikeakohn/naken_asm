@@ -5,13 +5,13 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
 #include "asm/pdk_parse.h"
 #include "asm/common.h"
-#include "common/eval_expression.h"
+#include "core/eval_expression.h"
 
 int pdk_parse(AsmContext *asm_context, struct _operand *operands)
 {

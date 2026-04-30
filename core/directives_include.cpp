@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -13,10 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/assembler.h"
-#include "common/directives_include.h"
-#include "common/tokens.h"
-#include "common/print_error.h"
+#include "core/assembler.h"
+#include "core/directives_include.h"
+#include "core/print_error.h"
+#include "core/tokens.h"
 
 int include_add_path(AsmContext *asm_context, const char *paths)
 {

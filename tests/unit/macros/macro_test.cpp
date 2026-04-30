@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/assembler.h"
-#include "common/ifdef_expression.h"
-#include "common/Macros.h"
-#include "common/tokens.h"
+#include "core/assembler.h"
+#include "core/ifdef_expression.h"
+#include "core/tokens.h"
+#include "core/Macros.h"
 
 int errors = 0;
 

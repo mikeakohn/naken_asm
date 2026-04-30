@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 #include "65c816_test.h"
 #include "6502_test.h"
 #include "68hc08.h"

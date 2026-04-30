@@ -5,15 +5,15 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
 #ifndef NAKEN_ASM_READ_ELF_H
 #define NAKEN_ASM_READ_ELF_H
 
-#include "common/Memory.h"
-#include "common/Symbols.h"
+#include "core/Memory.h"
+#include "core/Symbols.h"
 
 int read_elf(
   const char *filename,

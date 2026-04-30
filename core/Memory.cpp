@@ -13,8 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/assembler.h"
-#include "common/Memory.h"
+#include "core/assembler.h"
+#include "core/Memory.h"
 
 Memory::Memory() :
   pages        (NULL),

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2022 by Michael Kohn, Lars Brinkhoff
+ * Copyright 2010-2026 by Michael Kohn, Lars Brinkhoff
  *
  * PDP-8 by Lars Brinkhoff
  *
@@ -18,9 +18,9 @@
 
 #include "asm/pdp8.h"
 #include "asm/common.h"
-#include "common/assembler.h"
-#include "common/tokens.h"
-#include "common/eval_expression.h"
+#include "core/assembler.h"
+#include "core/tokens.h"
+#include "core/eval_expression.h"
 #include "table/pdp8.h"
 
 #define MAX_OPERANDS 2

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn, Lars Brinkhoff
+ * Copyright 2010-2026 by Michael Kohn, Lars Brinkhoff
  *
  * PDP-8 by Lars Brinkhoff
  *
@@ -14,7 +14,7 @@
 #ifndef NAKEN_ASM_TABLE_PDP8_H
 #define NAKEN_ASM_TABLE_PDP8_H
 
-#include "common/assembler.h"
+#include "core/assembler.h"
 
 enum
 {

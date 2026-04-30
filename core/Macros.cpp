@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2025 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -13,10 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/assembler.h"
-#include "common/Macros.h"
-#include "common/MemoryPool.h"
-#include "common/tokens.h"
+#include "core/assembler.h"
+#include "core/Macros.h"
+#include "core/MemoryPool.h"
+#include "core/tokens.h"
 
 Macros::Macros() :
   memory_pool (NULL),

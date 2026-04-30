@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #include "asm/common.h"
-#include "common/Memory.h"
+#include "core/Memory.h"
 
 void add_bin8(AsmContext *asm_context, uint8_t b, int flags)
 {

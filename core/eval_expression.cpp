@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -13,10 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/assembler.h"
-#include "common/eval_expression.h"
-#include "common/Operator.h"
-#include "common/tokens.h"
+#include "core/assembler.h"
+#include "core/eval_expression.h"
+#include "core/tokens.h"
+#include "core/Operator.h"
 
 int EvalExpression::run(AsmContext *asm_context, Var &answer, bool is_paren)
 {

@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -15,8 +15,8 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#include "common/assembler.h"
-#include "common/Symbols.h"
+#include "core/assembler.h"
+#include "core/Symbols.h"
 #include "fileio/FileIo.h"
 #include "fileio/read_elf.h"
 
