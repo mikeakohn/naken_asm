@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2024 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -159,7 +159,6 @@ int link_not_supported(
 
 struct _cpu_list cpu_list[] =
 {
-#ifdef ENABLE_MSP430
   {
     "msp430",
     CPU_TYPE_MSP430,
@@ -204,8 +203,6 @@ struct _cpu_list cpu_list[] =
     SimulateMsp430::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_1802
   {
     "1802",
     CPU_TYPE_1802,
@@ -228,8 +225,6 @@ struct _cpu_list cpu_list[] =
     Simulate1802::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_4004
   {
     "4004",
     CPU_TYPE_4004,
@@ -252,8 +247,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_6502
   {
     "6502",
     CPU_TYPE_6502,
@@ -276,8 +269,6 @@ struct _cpu_list cpu_list[] =
     Simulate6502::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_65816
   {
     "65816",
     CPU_TYPE_65816,
@@ -300,8 +291,6 @@ struct _cpu_list cpu_list[] =
     Simulate65816::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_65816
   {
     "65832",
     CPU_TYPE_65816,
@@ -324,8 +313,6 @@ struct _cpu_list cpu_list[] =
     Simulate65816::init,
     32,
   },
-#endif
-#ifdef ENABLE_6800
   {
     "6800",
     CPU_TYPE_6800,
@@ -348,8 +335,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_6809
   {
     "6809",
     CPU_TYPE_6809,
@@ -372,8 +357,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_68HC08
   {
     "68hc08",
     CPU_TYPE_68HC08,
@@ -396,8 +379,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_68000
   {
     "68000",
     CPU_TYPE_68000,
@@ -420,8 +401,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_8008
   {
     "8008",
     CPU_TYPE_8008,
@@ -444,8 +423,6 @@ struct _cpu_list cpu_list[] =
     Simulate8008::init,
     1,
   },
-#endif
-#ifdef ENABLE_8048
   {
     "8041",
     CPU_TYPE_8041,
@@ -490,8 +467,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     FLAG_8048,
   },
-#endif
-#ifdef ENABLE_8051
   {
     "8051",
     CPU_TYPE_8051,
@@ -514,8 +489,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_86000
   {
     "86000",
     CPU_TYPE_86000,
@@ -538,8 +511,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_AGC
   {
     "agc",
     CPU_TYPE_AGC,
@@ -562,8 +533,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_ARC
   {
     "arc",
     CPU_TYPE_ARC,
@@ -586,8 +555,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_ARM
   {
     "arm",
     CPU_TYPE_ARM,
@@ -610,8 +577,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_ARM64
   {
     "arm64",
     CPU_TYPE_ARM64,
@@ -634,8 +599,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_AVR8
   {
     "avr8",
     CPU_TYPE_AVR8,
@@ -658,8 +621,6 @@ struct _cpu_list cpu_list[] =
     SimulateAvr8::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_CELL
   {
     "cell",
     CPU_TYPE_CELL,
@@ -682,8 +643,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_COPPER
   {
     "copper",
     CPU_TYPE_COPPER,
@@ -706,8 +665,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_CP1610
   {
     "cp1610",
     CPU_TYPE_CP1610,
@@ -730,8 +687,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_DOTNET
   {
     "dotnet",
     CPU_TYPE_DOTNET,
@@ -754,8 +709,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_DSPIC
   {
     "dspic",
     CPU_TYPE_DSPIC,
@@ -778,8 +731,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_EBPF
   {
     "ebpf",
     CPU_TYPE_EBPF,
@@ -802,8 +753,6 @@ struct _cpu_list cpu_list[] =
     SimulateEbpf::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_EPIPHANY
   {
     "epiphany",
     CPU_TYPE_EPIPHANY,
@@ -826,8 +775,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_F100_L
   {
     "f100_l",
     CPU_TYPE_F100_L,
@@ -850,8 +797,6 @@ struct _cpu_list cpu_list[] =
     SimulateF100L::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_F8
   {
     "f8",
     CPU_TYPE_F8,
@@ -874,8 +819,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_JAVA
   {
     "java",
     CPU_TYPE_JAVA,
@@ -898,8 +841,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_LC3
   {
     "lc3",
     CPU_TYPE_LC3,
@@ -922,8 +863,6 @@ struct _cpu_list cpu_list[] =
     SimulateLc3::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_M8C
   {
     "m8c",
     CPU_TYPE_M8C,
@@ -946,8 +885,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_MIPS
   {
     "mips",
     CPU_TYPE_MIPS32,
@@ -1058,8 +995,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     MIPS_I | MIPS_II | MIPS_III | MIPS_IV | MIPS_FPU | MIPS_EE_CORE | MIPS_EE_VU,
   },
-#endif
-#ifdef ENABLE_PDP8
   {
     "pdp8",
     CPU_TYPE_PDP8,
@@ -1082,8 +1017,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_PDP11
   {
     "pdp11",
     CPU_TYPE_PDP11,
@@ -1106,8 +1039,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_PADAUK
   {
     "pdk13",
     CPU_TYPE_PDK13,
@@ -1196,8 +1127,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_PIC14
   {
     "pic14",
     CPU_TYPE_PIC14,
@@ -1220,8 +1149,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_PIC18
   {
     "pic18",
     CPU_TYPE_PIC18,
@@ -1244,8 +1171,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_DSPIC
   {
     "pic24",
     CPU_TYPE_PIC24,
@@ -1268,8 +1193,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_POWERPC
   {
     "powerpc",
     CPU_TYPE_POWERPC,
@@ -1292,8 +1215,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_PROPELLER
   {
     "propeller",
     CPU_TYPE_PROPELLER,
@@ -1316,8 +1237,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_PROPELLER2
   {
     "propeller2",
     CPU_TYPE_PROPELLER2,
@@ -1340,8 +1259,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_EMOTION_ENGINE
   {
     "ps2_ee_vu0",
     CPU_TYPE_PS2_EE_VU,
@@ -1386,8 +1303,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     PS2_EE_VU1,
   },
-#endif
-#ifdef ENABLE_RISCV
   {
     "riscv",
     CPU_TYPE_RISCV,
@@ -1432,8 +1347,6 @@ struct _cpu_list cpu_list[] =
     SimulateRiscv::init,
     1,
   },
-#endif
-#ifdef ENABLE_SH4
   {
     "sh4",
     CPU_TYPE_SH4,
@@ -1456,8 +1369,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_SPARC
   {
     "sparc",
     CPU_TYPE_SPARC,
@@ -1480,8 +1391,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_STM8
   {
     "stm8",
     CPU_TYPE_STM8,
@@ -1504,8 +1413,6 @@ struct _cpu_list cpu_list[] =
     SimulateStm8::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_SUPER_FX
   {
     "super_fx",
     CPU_TYPE_SUPER_FX,
@@ -1528,8 +1435,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_SWEET16
   {
     "sweet16",
     CPU_TYPE_SWEET16,
@@ -1552,8 +1457,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_THUMB
   {
     "thumb",
     CPU_TYPE_THUMB,
@@ -1576,8 +1479,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_TMS340
   {
     "tms340",
     CPU_TYPE_TMS340,
@@ -1600,8 +1501,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_TMS1000
   {
     "tms1000",
     CPU_TYPE_TMS1000,
@@ -1646,8 +1545,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_TMS9900
   {
     "tms9900",
     CPU_TYPE_TMS9900,
@@ -1670,8 +1567,6 @@ struct _cpu_list cpu_list[] =
     SimulateTms9900::init,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_UNSP
   {
     "unsp",
     CPU_TYPE_UNSP,
@@ -1694,8 +1589,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_WEBASM
   {
     "webasm",
     CPU_TYPE_WEBASM,
@@ -1718,8 +1611,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_XTENSA
   {
     "xtensa",
     CPU_TYPE_XTENSA,
@@ -1742,8 +1633,6 @@ struct _cpu_list cpu_list[] =
     NULL,
     NO_FLAGS,
   },
-#endif
-#ifdef ENABLE_Z80
   {
     "z80",
     CPU_TYPE_Z80,
@@ -1766,7 +1655,8 @@ struct _cpu_list cpu_list[] =
     SimulateZ80::init,
     NO_FLAGS,
   },
-#endif
-  { NULL },
+  {
+    NULL
+  },
 };
 
