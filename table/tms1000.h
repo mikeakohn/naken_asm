@@ -12,7 +12,8 @@
 #ifndef NAKEN_ASM_TABLE_TMS1000_H
 #define NAKEN_ASM_TABLE_TMS1000_H
 
-#include "core/assembler.h"
+#include <stdlib.h>
+#include <stdint.h>
 
 struct _table_tms1000
 {

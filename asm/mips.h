@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_MIPS_H
 #define NAKEN_ASM_ASM_MIPS_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_mips(AsmContext *asm_context, char *instr);
 

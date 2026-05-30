@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_RISCV_H
 #define NAKEN_ASM_ASM_RISCV_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_riscv(AsmContext *asm_context, char *instr);
 

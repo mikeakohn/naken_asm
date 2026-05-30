@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_68HC08_H
 #define NAKEN_ASM_DISASM_68HC08_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_68hc08(
   Memory *memory,

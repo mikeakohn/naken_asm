@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_SWEET16_H
 #define NAKEN_ASM_DISASM_SWEET16_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_sweet16(
   Memory *memory,

@@ -14,8 +14,6 @@
 
 #include <stdint.h>
 
-#include "core/assembler.h"
-
 #define FLAG_NONE 0x0000
 #define FLAG_B 0x0001        // byte
 #define FLAG_W 0x0002        // word

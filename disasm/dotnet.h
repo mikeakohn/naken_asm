@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_DOTNET_H
 #define NAKEN_ASM_DISASM_DOTNET_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_dotnet(
   Memory *memory,

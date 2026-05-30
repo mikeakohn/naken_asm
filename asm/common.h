@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #include "core/add_bin.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 
 int ignore_operand(AsmContext *asm_context);

@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_MIPS_H
 #define NAKEN_ASM_DISASM_MIPS_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "table/mips.h"
 
 int disasm_mips(

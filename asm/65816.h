@@ -14,7 +14,7 @@
 #ifndef NAKEN_ASM_ASM_65816_H
 #define NAKEN_ASM_ASM_65816_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_directive_65816(AsmContext *asm_context, const char *directive);
 

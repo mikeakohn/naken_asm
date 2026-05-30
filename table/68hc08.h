@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_TABLE_68HC08
 #define NAKEN_ASM_TABLE_68HC08
 
-#include "stdint.h"
+#include <stdint.h>
 
 enum
 {

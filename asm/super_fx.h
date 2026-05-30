@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_SUPER_FX_H
 #define NAKEN_ASM_ASM_SUPER_FX_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_super_fx(AsmContext *asm_context, char *instr);
 

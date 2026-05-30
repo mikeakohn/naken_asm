@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_8051_H
 #define NAKEN_ASM_DISASM_8051_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_8051(
   Memory *memory,

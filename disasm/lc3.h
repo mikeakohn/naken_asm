@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_LC3_H
 #define NAKEN_ASM_DISASM_LC3_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_lc3(
   Memory *memory,

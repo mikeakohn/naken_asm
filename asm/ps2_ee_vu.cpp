@@ -17,7 +17,7 @@
 #include "asm/common.h"
 #include "asm/ps2_ee_vu.h"
 #include "disasm/ps2_ee_vu.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "core/eval_expression.h"
 #include "table/ps2_ee_vu.h"

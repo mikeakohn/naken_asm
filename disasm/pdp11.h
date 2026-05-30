@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_PDP11_H
 #define NAKEN_ASM_DISASM_PDP11_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_pdp11(
   Memory *memory,

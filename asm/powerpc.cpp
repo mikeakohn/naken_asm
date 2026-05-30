@@ -16,7 +16,7 @@
 
 #include "asm/common.h"
 #include "asm/powerpc.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "core/eval_expression.h"
 #include "table/powerpc.h"

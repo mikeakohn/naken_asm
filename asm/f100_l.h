@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_F100_L_H
 #define NAKEN_ASM_ASM_F100_L_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_f100_l(AsmContext *asm_context, char *instr);
 

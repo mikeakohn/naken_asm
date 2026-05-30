@@ -15,7 +15,7 @@
 
 #include "asm/common.h"
 #include "asm/msp430.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/cpu_list.h"
 #include "core/directives.h"
 #include "core/directives_data.h"

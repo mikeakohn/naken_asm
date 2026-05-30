@@ -14,7 +14,7 @@
 #ifndef NAKEN_ASM_DISASM_6502_H
 #define NAKEN_ASM_DISASM_6502_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_6502(
   Memory *memory,

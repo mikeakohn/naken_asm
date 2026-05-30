@@ -14,7 +14,8 @@
 #ifndef NAKEN_ASM_TABLE_PDP8_H
 #define NAKEN_ASM_TABLE_PDP8_H
 
-#include "core/assembler.h"
+#include <stdlib.h>
+#include <stdint.h>
 
 enum
 {

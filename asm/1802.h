@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_1802_H
 #define NAKEN_ASM_ASM_1802_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_1802(AsmContext *asm_context, char *instr);
 

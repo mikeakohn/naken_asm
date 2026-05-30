@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_TMS340_H
 #define NAKEN_ASM_DISASM_TMS340_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_tms340(
   Memory *memory,

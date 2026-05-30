@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_SH4_H
 #define NAKEN_ASM_DISASM_SH4_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_sh4(
   Memory *memory,

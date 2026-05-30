@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_WEBASM_H
 #define NAKEN_ASM_DISASM_WEBASM_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_webasm(
   Memory *memory,

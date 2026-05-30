@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_ARC_H
 #define NAKEN_ASM_ASM_ARC_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_arc(AsmContext *asm_context, char *instr);
 

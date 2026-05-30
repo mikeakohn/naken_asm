@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_POWERPC_H
 #define NAKEN_ASM_DISASM_POWERPC_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_powerpc(
   Memory *memory,

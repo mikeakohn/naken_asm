@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DIRECTIVES_DATA_H
 #define NAKEN_ASM_DIRECTIVES_DATA_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_db(AsmContext *asm_context, int null_term_flag);
 int parse_dc16(AsmContext *asm_context);

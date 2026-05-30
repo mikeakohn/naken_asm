@@ -14,7 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/directives_include.h"
 #include "core/tokens.h"
 #include "core/version.h"

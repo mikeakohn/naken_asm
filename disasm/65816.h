@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_65816(
   Memory *memory,

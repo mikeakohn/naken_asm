@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_PIC18_H
 #define NAKEN_ASM_DISASM_PIC18_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_pic18(
   Memory *memory,

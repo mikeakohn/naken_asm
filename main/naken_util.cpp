@@ -21,7 +21,7 @@
 #endif
 
 #include "common/String.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/UtilContext.h"
 #include "core/version.h"
 #include "fileio/file.h"

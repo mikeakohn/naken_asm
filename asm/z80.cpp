@@ -15,7 +15,7 @@
 
 #include "asm/common.h"
 #include "asm/z80.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "core/eval_expression.h"
 #include "table/z80.h"

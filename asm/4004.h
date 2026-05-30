@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_4004_H
 #define NAKEN_ASM_ASM_4004_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_4004(AsmContext *asm_context, char *instr);
 

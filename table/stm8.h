@@ -12,7 +12,8 @@
 #ifndef NAKEN_ASM_TABLE_STM8_H
 #define NAKEN_ASM_TABLE_STM8_H
 
-#include "core/assembler.h"
+#include <stdlib.h>
+#include <stdint.h>
 
 #define ST7_NO 0
 #define ST7_YES 1

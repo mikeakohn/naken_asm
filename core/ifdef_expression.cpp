@@ -13,15 +13,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "core/assembler.h"
 #include "core/ifdef_expression.h"
 #include "core/tokens.h"
+#include "core/AsmContext.h"
 #include "core/Macros.h"
 #include "core/Symbols.h"
 
 enum
 {
-  OPER_NONE=-1,
+  OPER_NONE = -1,
   OPER_EQUAL,
   OPER_GT_EQUAL,
   OPER_LT_EQUAL,
@@ -33,7 +33,7 @@ enum
 
 enum
 {
-  PREC_OR=0,
+  PREC_OR = 0,
   PREC_AND,
   PREC_EQUAL
 };

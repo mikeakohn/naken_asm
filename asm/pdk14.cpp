@@ -17,7 +17,7 @@
 #include "asm/pdk14.h"
 #include "asm/pdk_parse.h"
 #include "asm/common.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "table/pdk14.h"
 

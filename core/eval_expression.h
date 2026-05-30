@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/eval_expression.h"
 #include "core/Operator.h"
 #include "core/Var.h"

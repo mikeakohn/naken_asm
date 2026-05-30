@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_TMS1000_H
 #define NAKEN_ASM_ASM_TMS1000_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_tms1000(AsmContext *asm_context, char *instr);
 int parse_instruction_tms1100(AsmContext *asm_context, char *instr);

@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_PS2_EE_VU_H
 #define NAKEN_ASM_DISASM_PS2_EE_VU_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "table/ps2_ee_vu.h"
 
 #define PS2_EE_VU0 0

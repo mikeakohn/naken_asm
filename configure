@@ -81,7 +81,6 @@ NO_MSP430="-DNO_MSP430"
 
 CORE_OBJS="
   add_bin.o
-  assembler.o
   cpu_list.o
   directives.o
   directives_data.o
@@ -94,6 +93,7 @@ CORE_OBJS="
   imports_obj.o
   print_error.o
   tokens.o
+  AsmContext.o
   Linker.o
   Macros.o
   Memory.o

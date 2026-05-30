@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DIRECTIVES_H
 #define NAKEN_ASM_DIRECTIVES_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_org(AsmContext *asm_context);
 int parse_directives(AsmContext *asm_context);

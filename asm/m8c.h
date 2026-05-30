@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_M8C_H
 #define NAKEN_ASM_ASM_M8C_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_m8c(AsmContext *asm_context, char *instr);
 

@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_TOKENS_H
 #define NAKEN_ASM_TOKENS_H
 
-//#include "assembler.h"
+//#include "AsmContext.h"
 
 #define TOKENLEN 512
 

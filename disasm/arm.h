@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_ARM_H
 #define NAKEN_ASM_DISASM_ARM_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 #define ALU_MASK            0x0c000000
 #define ALU_OPCODE          0x00000000

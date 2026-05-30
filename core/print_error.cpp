@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/print_error.h"
 
 void print_error(AsmContext *asm_context, const char *s)

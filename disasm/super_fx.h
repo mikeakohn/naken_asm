@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_SUPER_FX_H
 #define NAKEN_ASM_DISASM_SUPER_FX_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_super_fx(
   Memory *memory,

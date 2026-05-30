@@ -17,7 +17,7 @@
 #include <inttypes.h>
 #include <assert.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/Macros.h"
 #include "core/tokens.h"
 

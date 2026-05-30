@@ -17,7 +17,7 @@
 
 #include "asm/common.h"
 #include "asm/dspic.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "core/eval_expression.h"
 #include "disasm/dspic.h"

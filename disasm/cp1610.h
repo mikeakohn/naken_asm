@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_CP1610_H
 #define NAKEN_ASM_DISASM_CP1610_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_cp1610(
   Memory *memory,

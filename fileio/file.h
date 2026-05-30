@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/UtilContext.h"
 
 enum

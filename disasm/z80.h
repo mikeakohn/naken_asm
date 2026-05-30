@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_Z80_H
 #define NAKEN_ASM_DISASM_Z80_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_z80(
   Memory *memory,

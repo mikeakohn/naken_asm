@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int get_register_msp430(const char *token);
 int get_cycle_count(uint16_t opcode);

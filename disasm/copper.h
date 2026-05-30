@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_COPPER_H
 #define NAKEN_ASM_DISASM_COPPER_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_copper(
   Memory *memory,

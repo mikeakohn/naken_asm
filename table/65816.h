@@ -14,7 +14,7 @@
 #ifndef NAKEN_ASM_TABLE_65816_H
 #define NAKEN_ASM_TABLE_65816_H
 
-#include "core/assembler.h"
+#include <stdint.h>
 
 struct _table_65816
 {

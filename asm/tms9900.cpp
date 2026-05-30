@@ -15,7 +15,7 @@
 
 #include "asm/common.h"
 #include "asm/tms9900.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "core/eval_expression.h"
 #include "table/tms9900.h"

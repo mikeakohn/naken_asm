@@ -16,7 +16,7 @@
 
 #include "common/String.h"
 #include "common/StringTokenizer.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/cpu_list.h"
 #include "core/UtilContext.h"
 #include "disasm/msp430.h"

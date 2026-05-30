@@ -17,7 +17,7 @@
 
 #include "asm/common.h"
 #include "asm/65816.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/eval_expression.h"
 #include "core/tokens.h"
 #include "disasm/65816.h"

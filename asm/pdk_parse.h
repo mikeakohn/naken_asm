@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_PDK_PARSE_H
 #define NAKEN_ASM_ASM_PDK_PARSE_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 #define MAX_OPERANDS 2
 

@@ -12,7 +12,8 @@
 #ifndef NAKEN_ASM_TABLE_PIC18_H
 #define NAKEN_ASM_TABLE_PIC18_H
 
-#include "core/assembler.h"
+#include <stdlib.h>
+#include <stdint.h>
 
 enum
 {

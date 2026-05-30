@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/directives_include.h"
 #include "core/print_error.h"
 #include "core/tokens.h"

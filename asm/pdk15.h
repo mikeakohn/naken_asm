@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_PDK15_H
 #define NAKEN_ASM_ASM_PDK15_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_pdk15(AsmContext *asm_context, char *instr);
 

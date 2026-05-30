@@ -12,9 +12,8 @@
 #ifndef NAKEN_ASM_TABLE_TMS340_H
 #define NAKEN_ASM_TABLE_TMS340_H
 
+#include <stdlib.h>
 #include <stdint.h>
-
-#include "core/assembler.h"
 
 enum
 {

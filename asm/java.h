@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_JAVA_H
 #define NAKEN_ASM_ASM_JAVA_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_java(AsmContext *asm_context, char *instr);
 

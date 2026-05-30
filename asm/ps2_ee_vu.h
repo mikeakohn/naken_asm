@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_PS2_EE_VU_H
 #define NAKEN_ASM_ASM_PS2_EE_VU_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_ps2_ee_vu(AsmContext *asm_context, char *instr);
 

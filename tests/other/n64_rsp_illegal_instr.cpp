@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int test_instruction(const char *instruction)
 {

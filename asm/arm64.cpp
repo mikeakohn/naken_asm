@@ -16,7 +16,7 @@
 
 #include "asm/arm64.h"
 #include "asm/common.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "core/eval_expression.h"
 #include "table/arm64.h"

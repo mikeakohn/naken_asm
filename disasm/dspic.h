@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_DSPIC_H
 #define NAKEN_ASM_DISASM_DSPIC_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_dspic(
   Memory *memory,

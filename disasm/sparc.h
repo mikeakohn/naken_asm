@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_SPARC_H
 #define NAKEN_ASM_DISASM_SPARC_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_sparc(
   Memory *memory,

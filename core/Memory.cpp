@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/Memory.h"
 
 Memory::Memory() :

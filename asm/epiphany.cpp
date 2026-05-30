@@ -15,7 +15,7 @@
 
 #include "asm/common.h"
 #include "asm/epiphany.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/eval_expression.h"
 #include "core/tokens.h"
 #include "disasm/epiphany.h"

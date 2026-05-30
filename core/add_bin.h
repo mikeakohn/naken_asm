@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "assembler.h"
+#include "AsmContext.h"
 
 #define IS_DATA 0
 #define IS_OPCODE 1

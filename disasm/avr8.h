@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_AVR8_H
 #define NAKEN_ASM_DISASM_AVR8_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int get_register_avr8(const char *token);
 

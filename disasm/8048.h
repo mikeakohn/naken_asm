@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_8048_H
 #define NAKEN_ASM_DISASM_8048_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "table/8048.h"
 
 int disasm_8048(

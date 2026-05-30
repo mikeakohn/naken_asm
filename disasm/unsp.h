@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_UNSP_H
 #define NAKEN_ASM_DISASM_UNSP_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_unsp(
   Memory *memory,

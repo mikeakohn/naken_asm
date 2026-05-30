@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_6800_H
 #define NAKEN_ASM_DISASM_6800_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_6800(
   Memory *memory,

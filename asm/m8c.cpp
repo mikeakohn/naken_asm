@@ -15,7 +15,7 @@
 
 #include "asm/common.h"
 #include "asm/m8c.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "core/eval_expression.h"
 #include "table/m8c.h"

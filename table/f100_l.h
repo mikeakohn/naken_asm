@@ -12,7 +12,8 @@
 #ifndef NAKEN_ASM_TABLE_F100_L_H
 #define NAKEN_ASM_TABLE_F100_L_H
 
-#include "core/assembler.h"
+#include <stdlib.h>
+#include <stdint.h>
 
 enum
 {

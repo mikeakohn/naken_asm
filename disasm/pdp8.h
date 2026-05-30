@@ -14,7 +14,7 @@
 #ifndef NAKEN_ASM_DISASM_PDP8_H
 #define NAKEN_ASM_DISASM_PDP8_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_pdp8(
   Memory *memory,

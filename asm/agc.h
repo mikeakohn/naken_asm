@@ -14,7 +14,7 @@
 #ifndef NAKEN_ASM_ASM_AGC_H
 #define NAKEN_ASM_ASM_AGC_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_agc(AsmContext *asm_context, char *instr);
 

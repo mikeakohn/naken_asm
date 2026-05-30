@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_TMS9900_H
 #define NAKEN_ASM_DISASM_TMS9900_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_tms9900(
   Memory *memory,

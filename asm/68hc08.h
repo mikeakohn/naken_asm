@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_ASM_68HC08_H
 #define NAKEN_ASM_ASM_68HC08_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int parse_instruction_68hc08(AsmContext *asm_context, char *instr);
 

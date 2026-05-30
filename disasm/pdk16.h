@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_PDK16_H
 #define NAKEN_ASM_DISASM_PDK16_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 int disasm_pdk16(
   Memory *memory,

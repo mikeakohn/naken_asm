@@ -16,7 +16,7 @@
 
 #include "asm/super_fx.h"
 #include "asm/common.h"
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 #include "core/tokens.h"
 #include "core/eval_expression.h"
 #include "table/super_fx.h"

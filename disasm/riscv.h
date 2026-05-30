@@ -12,7 +12,7 @@
 #ifndef NAKEN_ASM_DISASM_RISCV_H
 #define NAKEN_ASM_DISASM_RISCV_H
 
-#include "core/assembler.h"
+#include "core/AsmContext.h"
 
 extern const char *riscv_reg_names[32];
 
