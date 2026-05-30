@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
 
   asm_context.init();
 
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   do
   {
@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
 
     if (create_list == 1) { asm_context.write_list_file = 1; }
 
-    error_flag = assemble(&asm_context);
+    error_flag = asm_context.assemble();
 
     if (error_flag != 0) { break; }
 

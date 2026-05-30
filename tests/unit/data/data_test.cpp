@@ -66,7 +66,7 @@ void test_int(const char *source, uint8_t *answer, int length, int endian)
     asm_context.memory.endian = 1;
   }
 
-  assemble(&asm_context);
+  asm_context.assemble();
 
   for (i = 0; i < length; i++)
   {
@@ -105,7 +105,7 @@ void test_float(const char *source, float *answer, int length, int endian)
     asm_context.memory.endian = 1;
   }
 
-  assemble(&asm_context);
+  asm_context.assemble();
 
   uint32_t f = 0;
 

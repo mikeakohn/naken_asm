@@ -163,7 +163,7 @@ printf("including file %s.\n", token);
     asm_context->tokens.filename = token;
     asm_context->tokens.line = 1;
 
-    ret = assemble(asm_context);
+    ret = asm_context->assemble();
 
     asm_context->tokens.line = oldline;
   }

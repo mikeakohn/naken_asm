@@ -31,7 +31,7 @@ int test_symbols(const char *label, const char *code)
   asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag != 0)
   {
@@ -49,7 +49,7 @@ int test_symbols(const char *label, const char *code)
   asm_context.symbols.set_debug();
   asm_context.symbols.scope_reset();
   asm_context.init();
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag != 0)
   {

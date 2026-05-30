@@ -199,6 +199,148 @@ int AsmContext::set_cpu(const char *name)
   return -1;
 }
 
+int AsmContext::assemble()
+{
+  char token[TOKENLEN];
+  int token_type;
+
+  while (true)
+  {
+    if (error_count > 0) { return -1; }
+
+    token_type = tokens_get(this, token, TOKENLEN);
+
+#ifdef DEBUG
+    printf("%d: <%d> %s\n", asm_context->tokens.line, token_type, token);
+#endif
+
+    if (token_type == TOKEN_EOF) { break; }
+
+    if (token_type == TOKEN_EOL)
+    {
+      if (macros.get_stack_ptr() == 0)
+      {
+        tokens.line++;
+      }
+    }
+      else
+    if (token_type == TOKEN_LABEL)
+    {
+      int param_count_temp;
+      if (macros_lookup(&macros, token, &param_count_temp) != nullptr)
+      {
+        print_already_defined(this, token);
+        return -1;
+      }
+
+      if (symbols.append(token, address / bytes_per_address) == -1)
+      {
+        return -1;
+      }
+    }
+      else
+    if (token_type == TOKEN_POUND || IS_TOKEN(token,'.'))
+    {
+      int n = parse_directives(this);
+
+      // If n is 3, then this is ending a .repeat directive.
+      if (n == 3) { return 3; }
+
+      // If n is 4, then this is ending a .else directive.
+      if (n == 4) { return 2; }
+
+      // Otherwise there is a problem.
+      if (n != 0) { return -1; }
+    }
+      else
+    if (token_type == TOKEN_STRING)
+    {
+      int ret = assembler_directive(this, token);
+
+      if (ret == 2) { break; }
+      if (ret == -1) { return -1; }
+
+      if (ret != 1)
+      {
+        int start_address = address;
+        char token2[TOKENLEN];
+        int token_type2;
+
+        token_type2 = tokens_get(this, token2, TOKENLEN);
+
+        if (strcasecmp(token2, "equ") == 0)
+        {
+          //token_type2 = tokens_get(asm_context, token2, TOKENLEN);
+          int ptr = 0;
+          int ch = '\n';
+
+          while (true)
+          {
+            ch = tokens_get_char(this);
+            if (ch == EOF || ch == '\n') break;
+            if (ch == '\t') { ch = ' '; }
+            if (ch == '*' && ptr > 0 && token2[ptr - 1] == '/')
+            {
+              macros_strip_comment(this);
+              ptr--;
+              continue;
+            }
+
+            token2[ptr++] = ch;
+
+            if (ptr == TOKENLEN - 1)
+            {
+              printf("Internal Error: token overflow at %s:%d.\n",
+                __FILE__, __LINE__);
+              return -1;
+            }
+          }
+
+          token2[ptr] = 0;
+          tokens_unget_char(this, ch);
+          macros_strip(token2);
+          macros_append(this, token, token2, 0);
+        }
+          else
+        {
+          tokens_push(this, token2, token_type2);
+
+          ret = parse_instruction(this, token);
+
+          if (list != nullptr && write_list_file == true)
+          {
+            list_output(this, start_address, address);
+            fprintf(list, "\n");
+          }
+
+          if (ret < 0) { return -1; }
+
+          if (macros.get_stack_ptr() == 0)
+          {
+            tokens.line++;
+          }
+
+          instruction_count++;
+
+          if (address > start_address)
+          {
+            code_count += address - start_address;
+          }
+        }
+      }
+    }
+      else
+    {
+      print_error_unexp(this, token);
+      return -1;
+    }
+  }
+
+  if (error == true) { return -1; }
+
+  return 0;
+}
+
 int assembler_link_file(AsmContext *asm_context, const char *filename)
 {
   int n;
@@ -370,148 +512,6 @@ int assembler_directive(AsmContext *asm_context, char *token)
     // This is breaking webasm which has an "end" instruction.
     return 2;
   }
-
-  return 0;
-}
-
-int assemble(AsmContext *asm_context)
-{
-  char token[TOKENLEN];
-  int token_type;
-
-  while (1)
-  {
-    if (asm_context->error_count > 0) { return -1; }
-
-    token_type = tokens_get(asm_context, token, TOKENLEN);
-
-#ifdef DEBUG
-    printf("%d: <%d> %s\n", asm_context->tokens.line, token_type, token);
-#endif
-
-    if (token_type == TOKEN_EOF) { break; }
-
-    if (token_type == TOKEN_EOL)
-    {
-      if (asm_context->macros.get_stack_ptr() == 0)
-      {
-        asm_context->tokens.line++;
-      }
-    }
-      else
-    if (token_type == TOKEN_LABEL)
-    {
-      int param_count_temp;
-      if (macros_lookup(&asm_context->macros, token, &param_count_temp) != nullptr)
-      {
-        print_already_defined(asm_context, token);
-        return -1;
-      }
-
-      if (asm_context->symbols.append(token, asm_context->address / asm_context->bytes_per_address) == -1)
-      {
-        return -1;
-      }
-    }
-      else
-    if (token_type == TOKEN_POUND || IS_TOKEN(token,'.'))
-    {
-      int n = parse_directives(asm_context);
-
-      // If n is 3, then this is ending a .repeat directive.
-      if (n == 3) { return 3; }
-
-      // If n is 4, then this is ending a .else directive.
-      if (n == 4) { return 2; }
-
-      // Otherwise there is a problem.
-      if (n != 0) { return -1; }
-    }
-      else
-    if (token_type == TOKEN_STRING)
-    {
-      int ret = assembler_directive(asm_context, token);
-
-      if (ret == 2) { break; }
-      if (ret == -1) { return -1; }
-
-      if (ret != 1)
-      {
-        int start_address = asm_context->address;
-        char token2[TOKENLEN];
-        int token_type2;
-
-        token_type2 = tokens_get(asm_context, token2, TOKENLEN);
-
-        if (strcasecmp(token2, "equ") == 0)
-        {
-          //token_type2 = tokens_get(asm_context, token2, TOKENLEN);
-          int ptr = 0;
-          int ch = '\n';
-
-          while (1)
-          {
-            ch = tokens_get_char(asm_context);
-            if (ch == EOF || ch == '\n') break;
-            if (ch == '\t') { ch = ' '; }
-            if (ch == '*' && ptr > 0 && token2[ptr - 1] == '/')
-            {
-              macros_strip_comment(asm_context);
-              ptr--;
-              continue;
-            }
-
-            token2[ptr++] = ch;
-
-            if (ptr == TOKENLEN - 1)
-            {
-              printf("Internal Error: token overflow at %s:%d.\n",
-                __FILE__, __LINE__);
-              return -1;
-            }
-          }
-
-          token2[ptr] = 0;
-          tokens_unget_char(asm_context, ch);
-          macros_strip(token2);
-          macros_append(asm_context, token, token2, 0);
-        }
-          else
-        {
-          tokens_push(asm_context, token2, token_type2);
-
-          ret = asm_context->parse_instruction(asm_context, token);
-
-          if (asm_context->list != nullptr && asm_context->write_list_file == 1)
-          {
-            asm_context->list_output(asm_context, start_address, asm_context->address);
-            fprintf(asm_context->list, "\n");
-          }
-
-          if (ret < 0) { return -1; }
-
-          if (asm_context->macros.get_stack_ptr() == 0)
-          {
-            asm_context->tokens.line++;
-          }
-
-          asm_context->instruction_count++;
-
-          if (asm_context->address > start_address)
-          {
-            asm_context->code_count += (asm_context->address - start_address);
-          }
-        }
-      }
-    }
-      else
-    {
-      print_error_unexp(asm_context, token);
-      return -1;
-    }
-  }
-
-  if (asm_context->error == 1) { return -1; }
 
   return 0;
 }

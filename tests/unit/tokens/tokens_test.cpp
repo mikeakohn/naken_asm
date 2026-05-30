@@ -222,7 +222,7 @@ void test_ascii_with_null()
 
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag != 0)
   {
@@ -256,7 +256,7 @@ void test_asciiz()
 
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag != 0)
   {
@@ -292,7 +292,7 @@ void test_escape_chars_in_db()
 
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag != 0)
   {
@@ -337,7 +337,7 @@ void test_escape_chars_in_code_const()
 
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag != 0)
   {
@@ -374,7 +374,7 @@ void test_db_quote_error()
   asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag == 0)
   {
@@ -395,7 +395,7 @@ void test_db_tick_error()
   asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag == 0)
   {
@@ -416,7 +416,7 @@ void test_code_tick_error()
   asm_context.init();
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
-  error_flag = assemble(&asm_context);
+  error_flag = asm_context.assemble();
 
   if (error_flag == 0)
   {

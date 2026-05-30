@@ -18,7 +18,7 @@ int test_instruction(const char *instruction)
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
 
-  int error_flag = assemble(&asm_context);
+  int error_flag = asm_context.assemble();
 
   if (error_flag != 0)
   {

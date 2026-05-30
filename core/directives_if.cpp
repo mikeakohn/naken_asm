@@ -69,12 +69,12 @@ int parse_ifdef_ignore(AsmContext *asm_context, int ignore_section)
   {
     if (ifdef_ignore(asm_context) == 2)
     {
-      assemble(asm_context);
+      asm_context->assemble();
     }
   }
     else
   {
-    if (assemble(asm_context) == 2)
+    if (asm_context->assemble() == 2)
     {
       ifdef_ignore(asm_context);
     }

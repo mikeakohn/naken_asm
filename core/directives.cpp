@@ -258,7 +258,7 @@ int parse_repeat(AsmContext *asm_context)
 
   uint32_t address_start = asm_context->address;
 
-  if (assemble(asm_context) != 3)
+  if (asm_context->assemble() != 3)
   {
     print_error(asm_context, "Missing .endr in .repeat block.");
     return -1;

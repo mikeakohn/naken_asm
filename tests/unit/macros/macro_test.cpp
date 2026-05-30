@@ -125,7 +125,7 @@ void test_define(const char *macro, uint8_t answer)
 
   while (true)
   {
-    i = assemble(&asm_context);
+    i = asm_context.assemble();
 
     if (i != 0)
     {

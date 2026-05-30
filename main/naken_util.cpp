@@ -284,7 +284,7 @@ int assemble_code(
   tokens_open_buffer(&asm_context, code);
   tokens_reset(&asm_context);
 
-  i = assemble(&asm_context);
+  i = asm_context.assemble();
 
   if (i != 0)
   {
@@ -298,7 +298,7 @@ int assemble_code(
   asm_context.set_cpu(cpu_name);
   asm_context.set_org(org);
 
-  i = assemble(&asm_context);
+  i = asm_context.assemble();
 
   if (i != 0)
   {
