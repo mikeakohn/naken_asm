@@ -17,19 +17,19 @@
 #include "StringHeap.h"
 
 StringHeap::StringHeap() :
-  data        (nullptr),
-  size        (4096),
-  length      (0),
-  entry_count (0)
+  data        { nullptr },
+  size        { 4096 },
+  length      { 0 },
+  entry_count ( 0 }
 {
   data = (char *)malloc(size);
 }
 
 StringHeap::StringHeap(int start_size) :
-  data        (nullptr),
-  size        (start_size),
-  length      (0),
-  entry_count (0)
+  data        { nullptr },
+  size        { start_size },
+  length      { 0 },
+  entry_count { 0 }
 {
   data = (char *)malloc(size);
 }
