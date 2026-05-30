@@ -255,7 +255,7 @@ int AsmContext::assemble()
       else
     if (token_type == TOKEN_STRING)
     {
-      int ret = assembler_directive(this, token);
+      int ret = directive(token);
 
       if (ret == 2) { break; }
       if (ret == -1) { return -1; }
@@ -341,7 +341,91 @@ int AsmContext::assemble()
   return 0;
 }
 
-int assembler_link_file(AsmContext *asm_context, const char *filename)
+int AsmContext::directive(char *token)
+{
+  if (strcasecmp(token, "org") == 0)
+  {
+    if (parse_org(this) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "db") == 0 ||
+      strcasecmp(token, "dc8") == 0 ||
+      strcasecmp(token, "ascii") == 0)
+  {
+    if (parse_db(this, 0) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "asciiz") == 0)
+  {
+    if (parse_db(this, 1) != 0) { return -1; }
+    return 1;
+  }
+    else
+#if 0
+  if (strcasecmp(token, "dc") == 0)
+  {
+    if (parse_dc(this) != 0) { return -1; }
+    return 1;
+  }
+    else
+#endif
+  if (strcasecmp(token, "dw") == 0 || strcasecmp(token, "dc16") == 0)
+  {
+    if (parse_dc16(this) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "dl") == 0 ||
+      strcasecmp(token, "dc32") == 0 ||
+      strcasecmp(token, "dd") == 0)
+  {
+    if (parse_dc32(this) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "dc64") == 0 ||
+      strcasecmp(token, "dq") == 0)
+  {
+    if (parse_dc64(this) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "varuint") == 0)
+  {
+    if (parse_varuint(this, 0) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "varuint32") == 0)
+  {
+    if (parse_varuint(this, 5) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "resb") == 0)
+  {
+    if (parse_resb(this, 1) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (strcasecmp(token, "resw") == 0)
+  {
+    if (parse_resb(this, 2) != 0) { return -1; }
+    return 1;
+  }
+    else
+  if (cpu_type != CPU_TYPE_WEBASM && strcasecmp(token, "end") == 0)
+  {
+    // This is breaking webasm which has an "end" instruction.
+    return 2;
+  }
+
+  return 0;
+}
+
+int AsmContext::link_file(const char *filename)
 {
   int n;
 
@@ -359,28 +443,28 @@ int assembler_link_file(AsmContext *asm_context, const char *filename)
     return -1;
   }
 
-  if (asm_context->linker == nullptr)
+  if (linker == nullptr)
   {
-    asm_context->linker = new Linker();
+    linker = new Linker();
   }
 
-  return asm_context->linker->add_file(filename);
+  return linker->add_file(filename);
 }
 
-int assembler_link(AsmContext *asm_context)
+int AsmContext::link()
 {
-  if (asm_context->linker == nullptr) { return 0; }
+  if (linker == nullptr) { return 0; }
 
   Imports *imports;
   int index = 0;
 
   while (true)
   {
-    const char *symbol = asm_context->linker->get_symbol_at_index(index);
+    const char *symbol = linker->get_symbol_at_index(index);
 
     if (symbol == nullptr) { break; }
 
-    asm_context->symbols.append(symbol, asm_context->address);
+    symbols.append(symbol, address);
 
     uint8_t *code;
     uint32_t function_offset;
@@ -388,7 +472,7 @@ int assembler_link(AsmContext *asm_context)
     uint8_t *obj_file;
     uint32_t obj_size;
 
-    code = asm_context->linker->get_code_from_symbol(
+    code = linker->get_code_from_symbol(
       &imports,
       symbol,
       &function_offset,
@@ -396,8 +480,8 @@ int assembler_link(AsmContext *asm_context)
       &obj_file,
       &obj_size);
 
-    int ret = asm_context->link_function(
-      asm_context,
+    int ret = link_function(
+      this,
       imports,
       code,
       function_offset,
@@ -410,107 +494,23 @@ int assembler_link(AsmContext *asm_context)
       return -1;
     }
 
-    if (asm_context->pass == 2)
+    if (pass == 2)
     {
-      if (asm_context->list != nullptr && asm_context->write_list_file == 1)
+      if (list != nullptr && write_list_file == 1)
       {
         uint32_t address;
 
-        fprintf(asm_context->list, "[import]\n%s:", symbol);
+        fprintf(list, "[import]\n%s:", symbol);
 
-        if (asm_context->symbols.lookup((char *)symbol, &address) == 0)
+        if (symbols.lookup((char *)symbol, &address) == 0)
         {
-          asm_context->list_output(asm_context, address, address + function_size);
-          fprintf(asm_context->list, "\n");
+          list_output(this, address, address + function_size);
+          fprintf(list, "\n");
         }
       }
     }
 
     index++;
-  }
-
-  return 0;
-}
-
-int assembler_directive(AsmContext *asm_context, char *token)
-{
-  if (strcasecmp(token, "org") == 0)
-  {
-    if (parse_org(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "db") == 0 ||
-      strcasecmp(token, "dc8") == 0 ||
-      strcasecmp(token, "ascii") == 0)
-  {
-    if (parse_db(asm_context, 0) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "asciiz") == 0)
-  {
-    if (parse_db(asm_context, 1) != 0) { return -1; }
-    return 1;
-  }
-    else
-#if 0
-  if (strcasecmp(token, "dc") == 0)
-  {
-    if (parse_dc(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-#endif
-  if (strcasecmp(token, "dw") == 0 || strcasecmp(token, "dc16") == 0)
-  {
-    if (parse_dc16(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "dl") == 0 ||
-      strcasecmp(token, "dc32") == 0 ||
-      strcasecmp(token, "dd") == 0)
-  {
-    if (parse_dc32(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "dc64") == 0 ||
-      strcasecmp(token, "dq") == 0)
-  {
-    if (parse_dc64(asm_context) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "varuint") == 0)
-  {
-    if (parse_varuint(asm_context, 0) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "varuint32") == 0)
-  {
-    if (parse_varuint(asm_context, 5) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "resb") == 0)
-  {
-    if (parse_resb(asm_context, 1) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (strcasecmp(token, "resw") == 0)
-  {
-    if (parse_resb(asm_context, 2) != 0) { return -1; }
-    return 1;
-  }
-    else
-  if (asm_context->cpu_type != CPU_TYPE_WEBASM && strcasecmp(token, "end") == 0)
-  {
-    // This is breaking webasm which has an "end" instruction.
-    return 2;
   }
 
   return 0;

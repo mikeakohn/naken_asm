@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
         exit(1);
       }
 
-      int n = assembler_link_file(&asm_context, argv[i]);
+      int n = asm_context.link_file(argv[i]);
 
       if (n == 0) { continue; }
 
@@ -369,7 +369,7 @@ int main(int argc, char *argv[])
 
   do
   {
-    if (error_flag == 0 && assembler_link(&asm_context) != 0)
+    if (error_flag == 0 && asm_context.link() != 0)
     {
       error_flag = 1;
     }
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
 
     if (error_flag != 0) { break; }
 
-    if (assembler_link(&asm_context) != 0)
+    if (asm_context.link() != 0)
     {
       error_flag = 1;
       break;

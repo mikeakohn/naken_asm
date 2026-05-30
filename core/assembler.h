@@ -45,6 +45,9 @@ public:
   int set_cpu(const char *name);
 
   int assemble();
+  int directive(char *token);
+  int link_file(const char *filename);
+  int link();
 
   void set_org(uint32_t value) { address = value * bytes_per_address; }
   //uint32_t get_low_address()  { return memory.low_address / bytes_per_address; }
@@ -122,10 +125,6 @@ public:
   uint32_t flags;
   uint32_t extra_context;
 };
-
-int assembler_directive(AsmContext *asm_context, char *token);
-int assembler_link_file(AsmContext *asm_context, const char *filename);
-int assembler_link(AsmContext *asm_context);
 
 #endif
 

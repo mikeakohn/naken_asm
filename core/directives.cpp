@@ -531,7 +531,7 @@ int parse_directives(AsmContext *asm_context)
         if (ret == -1) { return -1; } // Found and there was a problem
       }
 
-      ret = assembler_directive(asm_context, token);
+      ret = asm_context->directive(token);
 
       if (ret == 1 || ret == 2) { break; }
       if (ret == -1) { return -1; }
