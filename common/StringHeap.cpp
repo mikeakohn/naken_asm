@@ -20,7 +20,7 @@ StringHeap::StringHeap() :
   data        { nullptr },
   size        { 4096 },
   length      { 0 },
-  entry_count ( 0 }
+  entry_count { 0 }
 {
   data = (char *)malloc(size);
 }
