@@ -22,16 +22,16 @@ MemoryPool *memory_pool_add(NakenHeap *heap, int heap_len)
 
   memory_pool->len = heap_len;
   memory_pool->ptr = 0;
-  memory_pool->next = NULL;
+  memory_pool->next = nullptr;
 
-  if (heap->memory_pool == NULL)
+  if (heap->memory_pool == nullptr)
   {
     heap->memory_pool = memory_pool;
   }
     else
   {
     curr_pool = heap->memory_pool;
-    while (curr_pool->next != NULL) { curr_pool = curr_pool->next; }
+    while (curr_pool->next != nullptr) { curr_pool = curr_pool->next; }
     curr_pool->next = memory_pool;
   }
 
@@ -42,7 +42,7 @@ void memory_pool_free(MemoryPool *memory_pool)
 {
   MemoryPool *curr_pool = memory_pool;
 
-  while (curr_pool != NULL)
+  while (curr_pool != nullptr)
   {
     MemoryPool *last_pool = curr_pool;
     curr_pool = curr_pool->next;

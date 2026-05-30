@@ -443,7 +443,7 @@ int parse_instruction_thumb(AsmContext *asm_context, char *instr)
   }
 
   n = 0;
-  while (table_thumb[n].instr!=NULL)
+  while (table_thumb[n].instr != NULL)
   {
     if (strcmp(table_thumb[n].instr, instr_case) == 0)
     {

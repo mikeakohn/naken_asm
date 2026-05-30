@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2025 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -27,7 +27,7 @@
 template<typename TYPE> class NamedRecord
 {
 public:
-  NamedRecord() : entry_count (0)
+  NamedRecord() : entry_count { 0 }
   {
     memset(buckets, 0, sizeof(buckets));
   }

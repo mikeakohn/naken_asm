@@ -24,7 +24,7 @@ enum
 class Var
 {
 public:
-  Var() : type (VAR_INT), value_int (0)
+  Var() : type { VAR_INT }, value_int { 0 }
   {
   }
 
@@ -67,8 +67,8 @@ public:
 
   int32_t get_int32() { return get_data<int32_t>(); }
   int64_t get_int64() { return get_data<int64_t>(); }
-  float get_float()   { return get_data<float>();    }
-  double get_double() { return get_data<double>();   }
+  float get_float()   { return get_data<float>();   }
+  double get_double() { return get_data<double>();  }
 
   int get_type() { return type; }
 

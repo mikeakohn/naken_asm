@@ -19,10 +19,10 @@
 #include "Linker.h"
 
 Linker::Linker() :
-  imports                 (NULL),
-  symbol_list_buffer      (NULL),
-  symbol_list_buffer_size (0),
-  symbol_list_buffer_end  (0)
+  imports                 { nullptr },
+  symbol_list_buffer      { nullptr },
+  symbol_list_buffer_size { 0 },
+  symbol_list_buffer_end  { 0 }
 {
 }
 
@@ -30,14 +30,14 @@ Linker::~Linker()
 {
   Imports *imports = this->imports;
 
-  while (imports != NULL)
+  while (imports != nullptr)
   {
     Imports *curr = imports;
     imports = imports->next;
     free(curr);
   }
 
-  if (symbol_list_buffer != NULL)
+  if (symbol_list_buffer != nullptr)
   {
     free(symbol_list_buffer);
   }
@@ -72,7 +72,7 @@ int Linker::add_file(const char *filename)
 
   fp = fopen(filename, "rb");
 
-  if (fp == NULL)
+  if (fp == nullptr)
   {
     printf("Error: File not found %s\n", filename);
     return -2;
@@ -113,7 +113,7 @@ int Linker::add_file(const char *filename)
 
 int Linker::search_code_from_symbol(const char *symbol)
 {
-  //if (this == NULL) { return -1; }
+  //if (this == nullptr) { return -1; }
 
   Imports *imports = this->imports;
   uint32_t function_offset;
@@ -122,12 +122,12 @@ int Linker::search_code_from_symbol(const char *symbol)
   int ret;
 
   // If this symbol is already in the list, then don't search it again.
-  if (get_from_symbol_list(symbol) != NULL) { return 1; }
+  if (get_from_symbol_list(symbol) != nullptr) { return 1; }
 
   // FIXME: Deal with duplicate symbols in .a / .o files. Currently
   // this will find the first match and not check to see if it's a dup.
 
-  while (imports != NULL)
+  while (imports != nullptr)
   {
     if (imports->type == IMPORT_TYPE_AR)
     {
@@ -177,9 +177,9 @@ uint8_t *Linker::get_code_from_symbol(
   uint8_t **obj_file,
   uint32_t *obj_size)
 {
-  //if (this == NULL) { return NULL; }
+  //if (this == nullptr) { return nullptr; }
 
-  *ret_imports = NULL;
+  *ret_imports = nullptr;
 
   Imports *imports;
   uint32_t file_offset;
@@ -188,12 +188,12 @@ uint8_t *Linker::get_code_from_symbol(
   // If this symbol is already in the list, then point directly to it.
   imports = get_from_symbol_list(symbol);
 
-  if (get_from_symbol_list(symbol) != NULL)
+  if (get_from_symbol_list(symbol) != nullptr)
   {
     imports = this->imports;
   }
 
-  while (imports != NULL)
+  while (imports != nullptr)
   {
     if (imports->type == IMPORT_TYPE_AR)
     {
@@ -231,17 +231,17 @@ uint8_t *Linker::get_code_from_symbol(
     imports = imports->next;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const char *Linker::find_name_from_offset(uint32_t offset)
 {
-  //if (this == NULL) { return NULL; }
+  //if (this == nullptr) { return nullptr; }
 
   Imports *imports = this->imports;
-  const char *name = NULL;
+  const char *name = nullptr;
 
-  while (imports != NULL)
+  while (imports != nullptr)
   {
     if (imports->type == IMPORT_TYPE_AR)
     {
@@ -262,12 +262,12 @@ const char *Linker::find_name_from_offset(uint32_t offset)
         local_offset);
     }
 
-    if (name != NULL) { return name; }
+    if (name != nullptr) { return name; }
 
     imports = imports->next;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 int Linker::get_symbol_count()
@@ -305,7 +305,7 @@ const char *Linker::get_symbol_at_index(int index)
     count++;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void Linker::print_symbol_list()
@@ -366,13 +366,13 @@ Imports *Linker::get_from_symbol_list(const char *name)
     ptr += sizeof(SymbolList) + strlen(symbol_list->name) + 1;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void Linker::add_to_symbol_list(Imports *imports, const char *name)
 {
   // Allocate buffer if needed.
-  if (symbol_list_buffer == NULL)
+  if (symbol_list_buffer == nullptr)
   {
     symbol_list_buffer_size = 0x10000;
     symbol_list_buffer = (uint8_t *)malloc(symbol_list_buffer_size);
@@ -380,7 +380,7 @@ void Linker::add_to_symbol_list(Imports *imports, const char *name)
   }
 
   // If this symbol is already in the list, then don't add it again.
-  //if (get_from_symbol_list(name) != NULL) { return; }
+  //if (get_from_symbol_list(name) != nullptr) { return; }
 
   const int len = sizeof(SymbolList) + strlen(name) + 1;
 

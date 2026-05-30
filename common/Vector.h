@@ -18,12 +18,12 @@ template<typename TYPE>
 class Vector
 {
 public:
-  Vector() : length(16), index(0)
+  Vector() : length { 16 }, index { 0 }
   {
     data = (TYPE *)malloc(length * sizeof(TYPE));
   }
 
-  Vector(int start_length) : length(start_length), index(0)
+  Vector(int start_length) : length { start_length }, index { 0 }
   {
     data = (TYPE *)malloc(length * sizeof(TYPE));
   }

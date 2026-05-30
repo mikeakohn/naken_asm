@@ -16,7 +16,7 @@
 
 struct Range
 {
-  Range() : start(0), end(0) { }
+  Range() : start { 0 }, end { 0 } { }
   uint32_t start;
   uint32_t end;
 };

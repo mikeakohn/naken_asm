@@ -18,11 +18,11 @@
 #include "core/Symbols.h"
 
 Symbols::Symbols() :
-  memory_pool   (NULL),
-  locked        (false),
-  in_scope      (false),
-  debug         (false),
-  current_scope (0)
+  memory_pool   { nullptr },
+  locked        { false },
+  in_scope      { false },
+  debug         { false },
+  current_scope { 0 }
 {
 }
 
@@ -39,7 +39,7 @@ Symbols::Entry *Symbols::find(const char *name)
   // Check local scope.
   if (in_scope)
   {
-    while (memory_pool != NULL)
+    while (memory_pool != nullptr)
     {
       ptr = 0;
 
@@ -63,7 +63,7 @@ Symbols::Entry *Symbols::find(const char *name)
   }
 
   // Check global scope.
-  while (memory_pool != NULL)
+  while (memory_pool != nullptr)
   {
     ptr = 0;
 
@@ -82,7 +82,7 @@ Symbols::Entry *Symbols::find(const char *name)
     memory_pool = memory_pool->next;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 int Symbols::append(const char *name, uint32_t address)
@@ -99,7 +99,7 @@ int Symbols::append(const char *name, uint32_t address)
 
   entry = find(name);
 
-  if (entry != NULL)
+  if (entry != nullptr)
   {
     // For unit test.  Probably a better way to do this.
     if (debug)
@@ -125,7 +125,7 @@ int Symbols::append(const char *name, uint32_t address)
   }
 
   // If there is no pool, add one.
-  if (memory_pool == NULL)
+  if (memory_pool == nullptr)
   {
     memory_pool = memory_pool_add((NakenHeap *)this, SYMBOLS_HEAP_SIZE);
   }
@@ -139,7 +139,7 @@ int Symbols::append(const char *name, uint32_t address)
        break;
      }
 
-     if (memory_pool->next == NULL)
+     if (memory_pool->next == nullptr)
      {
        memory_pool->next = memory_pool_add((NakenHeap *)this, SYMBOLS_HEAP_SIZE);
      }
@@ -167,11 +167,11 @@ int Symbols::append(const char *name, uint32_t address)
 
 int Symbols::set(const char *name, uint32_t address)
 {
-  Entry *entry = NULL;
+  Entry *entry = nullptr;
 
   entry = find(name);
 
-  if (entry == NULL)
+  if (entry == nullptr)
   {
     if (append(name, address) != 0)
     {
@@ -199,7 +199,7 @@ int Symbols::export_symbol(const char *name)
 {
   Entry *entry = find(name);
 
-  if (entry == NULL) { return -1; }
+  if (entry == nullptr) { return -1; }
 
   if (entry->scope != 0)
   {
@@ -216,7 +216,7 @@ int Symbols::lookup(const char *name, uint32_t *address)
 {
   Entry *entry = find(name);
 
-  if (entry == NULL)
+  if (entry == nullptr)
   {
     *address = 0;
     return -1;
@@ -232,13 +232,13 @@ int Symbols::iterate(SymbolsIter *iter)
   MemoryPool *memory_pool = this->memory_pool;
 
   if (iter->end_flag == 1) { return -1; }
-  if (iter->memory_pool == NULL)
+  if (iter->memory_pool == nullptr)
   {
     iter->memory_pool = this->memory_pool;
     iter->ptr = 0;
   }
 
-  while (memory_pool != NULL)
+  while (memory_pool != nullptr)
   {
     if (iter->ptr < memory_pool->ptr)
     {
@@ -290,7 +290,7 @@ int Symbols::count()
   int ptr;
   int count = 0;
 
-  while (memory_pool != NULL)
+  while (memory_pool != nullptr)
   {
     ptr = 0;
     while (ptr < memory_pool->ptr)
@@ -312,7 +312,7 @@ int Symbols::export_count()
   int ptr;
   int count = 0;
 
-  while (memory_pool != NULL)
+  while (memory_pool != nullptr)
   {
     ptr = 0;
     while (ptr < memory_pool->ptr)

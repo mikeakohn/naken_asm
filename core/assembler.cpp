@@ -29,43 +29,43 @@
 #include "disasm/msp430.h"
 
 AsmContext::AsmContext() :
-  parse_instruction      (NULL),
-  parse_directive        (NULL),
-  link_function          (NULL),
-  list_output            (NULL),
-  list                   (NULL),
-  address                (0),
-  segment                (0),
-  pass                   (1),
-  instruction_count      (0),
-  data_count             (0),
-  code_count             (0),
-  error_count            (0),
-  ifdef_count            (0),
-  parsing_ifdef          (0),
-  linker                 (NULL),
-  def_param_stack_count  (0),
-  cpu_list_index         (0),
-  cpu_type               (0),
-  bytes_per_address      (1),
-  is_dollar_hex          (false),
-  strings_have_dots      (false),
-  strings_have_slashes   (false),
-  can_tick_end_string    (false),
-  numbers_dont_have_dots (false),
-  quiet_output           (false),
-  error                  (false),
-  msp430_cpu4            (false),
-  ignore_symbols         (false),
-  pass_1_write_disable   (false),
-  write_list_file        (false),
-  dump_symbols           (false),
-  dump_macros            (false),
-  optimize               (false),
-  ignore_number_postfix  (false),
-  in_repeat              (false),
-  flags                  (0),
-  extra_context          (0)
+  parse_instruction      { nullptr },
+  parse_directive        { nullptr },
+  link_function          { nullptr },
+  list_output            { nullptr },
+  list                   { nullptr },
+  address                { 0 },
+  segment                { 0 },
+  pass                   { 1 },
+  instruction_count      { 0 },
+  data_count             { 0 },
+  code_count             { 0 },
+  error_count            { 0 },
+  ifdef_count            { 0 },
+  parsing_ifdef          { 0 },
+  linker                 { nullptr },
+  def_param_stack_count  { 0 },
+  cpu_list_index         { 0 },
+  cpu_type               { 0 },
+  bytes_per_address      { 1 },
+  is_dollar_hex          { false },
+  strings_have_dots      { false },
+  strings_have_slashes   { false },
+  can_tick_end_string    { false },
+  numbers_dont_have_dots { false },
+  quiet_output           { false },
+  error                  { false },
+  msp430_cpu4            { false },
+  ignore_symbols         { false },
+  pass_1_write_disable   { false },
+  write_list_file        { false },
+  dump_symbols           { false },
+  dump_macros            { false },
+  optimize               { false },
+  ignore_number_postfix  { false },
+  in_repeat              { false },
+  flags                  { 0 },
+  extra_context          { 0 }
 {
   memset(&tokens,  0, sizeof(tokens));
   //memset(&macros,  0, sizeof(macros));
@@ -85,21 +85,20 @@ AsmContext::~AsmContext()
 void AsmContext::init()
 {
   tokens_reset(this);
-#ifndef NO_MSP430
+
+  // Default to MSP430.
   parse_instruction = parse_instruction_msp430;
   list_output = list_output_msp430;
   cpu_list_index = -1;
-#else
-  set_cpu(0);
-#endif
-  address = 0;
+
+  address           = 0;
   instruction_count = 0;
-  code_count = 0;
-  data_count = 0;
-  ifdef_count = 0;
-  parsing_ifdef = 0;
+  code_count        = 0;
+  data_count        = 0;
+  ifdef_count       = 0;
+  parsing_ifdef     = 0;
   bytes_per_address = 1;
-  in_repeat = 0;
+  in_repeat         = 0;
 
   macros.reset();
   def_param_stack_count = 0;
@@ -186,12 +185,12 @@ void AsmContext::set_cpu(int index)
 
 int AsmContext::set_cpu(const char *name)
 {
-  for (int n = 0; cpu_list[n].name != NULL; n++)
+  for (int n = 0; cpu_list[n].name != nullptr; n++)
   {
     if (strcasecmp(name, cpu_list[n].name) == 0)
     {
       set_cpu(n);
-      parse_directive = NULL;
+      parse_directive = nullptr;
 
       return 0;
     }
@@ -218,7 +217,7 @@ int assembler_link_file(AsmContext *asm_context, const char *filename)
     return -1;
   }
 
-  if (asm_context->linker == NULL)
+  if (asm_context->linker == nullptr)
   {
     asm_context->linker = new Linker();
   }
@@ -228,7 +227,7 @@ int assembler_link_file(AsmContext *asm_context, const char *filename)
 
 int assembler_link(AsmContext *asm_context)
 {
-  if (asm_context->linker == NULL) { return 0; }
+  if (asm_context->linker == nullptr) { return 0; }
 
   Imports *imports;
   int index = 0;
@@ -237,7 +236,7 @@ int assembler_link(AsmContext *asm_context)
   {
     const char *symbol = asm_context->linker->get_symbol_at_index(index);
 
-    if (symbol == NULL) { break; }
+    if (symbol == nullptr) { break; }
 
     asm_context->symbols.append(symbol, asm_context->address);
 
@@ -271,7 +270,7 @@ int assembler_link(AsmContext *asm_context)
 
     if (asm_context->pass == 2)
     {
-      if (asm_context->list != NULL && asm_context->write_list_file == 1)
+      if (asm_context->list != nullptr && asm_context->write_list_file == 1)
       {
         uint32_t address;
 
@@ -403,7 +402,7 @@ int assemble(AsmContext *asm_context)
     if (token_type == TOKEN_LABEL)
     {
       int param_count_temp;
-      if (macros_lookup(&asm_context->macros, token, &param_count_temp) != NULL)
+      if (macros_lookup(&asm_context->macros, token, &param_count_temp) != nullptr)
       {
         print_already_defined(asm_context, token);
         return -1;
@@ -483,7 +482,7 @@ int assemble(AsmContext *asm_context)
 
           ret = asm_context->parse_instruction(asm_context, token);
 
-          if (asm_context->list != NULL && asm_context->write_list_file == 1)
+          if (asm_context->list != nullptr && asm_context->write_list_file == 1)
           {
             asm_context->list_output(asm_context, start_address, asm_context->address);
             fprintf(asm_context->list, "\n");

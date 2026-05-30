@@ -19,9 +19,9 @@
 #include "core/tokens.h"
 
 Macros::Macros() :
-  memory_pool (NULL),
-  locked      (0),
-  stack_ptr   (0)
+  memory_pool { nullptr },
+  locked      { 0 },
+  stack_ptr   { 0 }
 {
   memset(stack, 0, sizeof(stack));
 }
@@ -34,7 +34,7 @@ Macros::~Macros()
 void Macros::reset()
 {
   memory_pool_free(memory_pool);
-  memory_pool = NULL;
+  memory_pool = nullptr;
   stack_ptr = 0;
 }
 
@@ -179,7 +179,7 @@ int macros_append(
 
   if (macros->is_locked()) { return 0; }
 
-  if (macros_lookup(macros, name, &param_count_temp) != NULL ||
+  if (macros_lookup(macros, name, &param_count_temp) != nullptr ||
       asm_context->symbols.lookup(name, &address) == 0)
   {
     printf("Error: Macro '%s' already defined.\n", name);
@@ -204,7 +204,7 @@ int macros_append(
   }
 
   // If there is no pool, add one.
-  if (memory_pool == NULL)
+  if (memory_pool == nullptr)
   {
     memory_pool = memory_pool_add((NakenHeap *)macros, MACROS_HEAP_SIZE);
   }
@@ -218,7 +218,7 @@ int macros_append(
        break;
      }
 
-     if (memory_pool->next == NULL)
+     if (memory_pool->next == nullptr)
      {
        memory_pool->next = memory_pool_add((NakenHeap *)macros, MACROS_HEAP_SIZE);
      }
@@ -245,7 +245,7 @@ char *macros_lookup(Macros *macros, char *name, int *param_count)
   char *value;
   int ptr;
 
-  while (memory_pool != NULL)
+  while (memory_pool != nullptr)
   {
     ptr = 0;
     while (ptr < memory_pool->ptr)
@@ -267,7 +267,7 @@ char *macros_lookup(Macros *macros, char *name, int *param_count)
     memory_pool = memory_pool->next;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 int macros_push_define(Macros *macros, char *define)
@@ -316,7 +316,7 @@ int macros_get_char(AsmContext *asm_context)
       asm_context->def_param_stack_count--;
       if (asm_context->def_param_stack_count < 0)
       {
-        print_error_internal(NULL, __FILE__, __LINE__);
+        print_error_internal(nullptr, __FILE__, __LINE__);
         exit(1);
       }
 #ifdef DEBUG
@@ -457,7 +457,7 @@ printf("debug> macros_parse() param count=%d\n", param_count);
 
   // Now macro time.
   ptr = 0;
-  name_test = NULL;
+  name_test = nullptr;
 
   while (true)
   {
@@ -466,7 +466,7 @@ printf("debug> macros_parse() param count=%d\n", param_count);
     // Tabs :(.
     if (ch == '\t') { ch = ' '; }
 
-    if (name_test == NULL)
+    if (name_test == nullptr)
     {
       if (Macros::is_letter(ch))
       {
@@ -476,7 +476,7 @@ printf("debug> macros_parse() param count=%d\n", param_count);
       else
     if (!(Macros::is_letter(ch) || Macros::is_digit(ch) || ch == '_'))
     {
-      if (name_test != NULL)
+      if (name_test != nullptr)
       {
         macro[ptr] = 0;
 
@@ -495,7 +495,7 @@ printf("debug> macros_parse() name_test='%s' %d\n", name_test, index);
           macro[ptr++] = index;
         }
 
-        name_test = NULL;
+        name_test = nullptr;
       }
     }
 
@@ -619,7 +619,7 @@ char *macros_expand_params(
   {
     print_error(asm_context, "Macro expects params");
     asm_context->error = 1;
-    return NULL;
+    return nullptr;
   }
 
   count = 0;
@@ -655,7 +655,7 @@ char *macros_expand_params(
     if (ch == '\n' || ch == EOF)
     {
       print_error(asm_context, "Macro expects ')'");
-      return NULL;
+      return nullptr;
     }
 
     if (ch == ',' && !in_string && !in_ticks && open_parens == 0)
@@ -678,7 +678,7 @@ char *macros_expand_params(
   {
     printf("Error: Macro expects %d params, but got only %d at %s:%d.\n",
       param_count, count, asm_context->tokens.filename, asm_context->tokens.line);
-    return NULL;
+    return nullptr;
   }
 
 #ifdef DEBUG
@@ -710,7 +710,7 @@ for (int n = 0; n < count; n++)
 
     if (ptr >= PARAM_STACK_LEN)
     {
-      print_error_internal(NULL, __FILE__, __LINE__);
+      print_error_internal(nullptr, __FILE__, __LINE__);
       exit(1);
     }
 
@@ -758,7 +758,7 @@ int MacrosIter::next()
 {
   if (is_done) { return -1; }
 
-  while (memory_pool != NULL)
+  while (memory_pool != nullptr)
   {
     if (ptr < memory_pool->ptr)
     {

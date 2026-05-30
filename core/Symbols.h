@@ -5,7 +5,7 @@
  *     Web: https://www.mikekohn.net/
  * License: GPLv3
  *
- * Copyright 2010-2023 by Michael Kohn
+ * Copyright 2010-2026 by Michael Kohn
  *
  */
 
@@ -21,26 +21,26 @@
 struct SymbolsIter
 {
   SymbolsIter() :
-    memory_pool (NULL),
-    name        (NULL),
-    address     (0),
-    ptr         (0),
-    count       (0),
-    end_flag    (0),
-    scope       (0),
-    flag_export (false)
+    memory_pool { nullptr },
+    name        { nullptr },
+    address     { 0 },
+    ptr         { 0 },
+    count       { 0 },
+    end_flag    { 0 },
+    scope       { 0 },
+    flag_export { false }
   {
   }
 
   void reset()
   {
-    memory_pool = NULL;
-    name = NULL;
-    address = 0;
-    ptr = 0;
-    count = 0;
-    end_flag = 0;
-    scope = 0;
+    memory_pool = nullptr;
+    name        = nullptr;
+    address     = 0;
+    ptr         = 0;
+    count       = 0;
+    end_flag    = 0;
+    scope       = 0;
     flag_export = false;
   }
 

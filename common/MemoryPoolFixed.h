@@ -23,18 +23,18 @@ class MemoryPoolFixed
 {
 public:
   MemoryPoolFixed() :
-    current_pool (nullptr),
-    free_entries (nullptr),
-    index        (1024),
-    length       (1024)
+    current_pool { nullptr },
+    free_entries { nullptr },
+    index        { 1024 },
+    length       { 1024 }
   {
   }
 
   MemoryPoolFixed(int size) :
-    current_pool (nullptr),
-    free_entries (nullptr),
-    index        (size),
-    length       (size)
+    current_pool { nullptr },
+    free_entries { nullptr },
+    index        { size },
+    length       { size }
   {
   }
 

@@ -23,27 +23,20 @@
 #include "simulate/null.h"
 
 UtilContext::UtilContext() :
-  simulate          (NULL),
-  cpu_name          (NULL),
-  flags             (0),
-  bytes_per_address (1),
-  alignment         (1),
-  allow_unknown_cpu (false),
-  disasm_range      (NULL)
+  simulate          { nullptr },
+  cpu_name          { nullptr },
+  flags             { 0 },
+  bytes_per_address { 1 },
+  alignment         { 1 },
+  allow_unknown_cpu { false },
+  disasm_range      { nullptr }
 {
-#ifndef NO_MSP430
+  // Default to MSP430.
   disasm_range = disasm_range_msp430;
   simulate = SimulateMsp430::init(&memory);
   flags = 0;
   bytes_per_address = 1;
   alignment = 1;
-#else
-  disasm_range = cpu_list[0].disasm_range;
-  simulate = SimulateNull::init(&memory);
-  flags = cpu_list[0].flags;
-  bytes_per_address = cpu_list[0].bytes_per_address;
-  alignment = cpu_list[0].alignment;
-#endif
 }
 
 UtilContext::~UtilContext()
@@ -55,7 +48,7 @@ int UtilContext::is_supported_cpu(const char *name)
 {
   int n = 0;
 
-  while (cpu_list[n].name != NULL)
+  while (cpu_list[n].name != nullptr)
   {
     if (strcasecmp(name, cpu_list[n].name) == 0) { return 1; }
     n++;
@@ -68,7 +61,7 @@ int UtilContext::set_cpu_by_type(uint8_t cpu_type)
 {
   int n = 0;
 
-  while (cpu_list[n].name != NULL)
+  while (cpu_list[n].name != nullptr)
   {
     if (cpu_list[n].type == cpu_type)
     {
@@ -86,7 +79,7 @@ int UtilContext::set_cpu_by_name(const char *name)
 {
   int n = 0;
 
-  while (cpu_list[n].name != NULL)
+  while (cpu_list[n].name != nullptr)
   {
     if (strcasecmp(name, cpu_list[n].name) == 0)
     {
@@ -303,7 +296,7 @@ int UtilContext::sim_set_breakpoint(String &arg)
 
   const char *end = get_address(value, &address);
 
-  if (end == NULL)
+  if (end == nullptr)
   {
     printf("Error: Unknown address '%s'\n", value);
     return -1;
@@ -494,7 +487,7 @@ void UtilContext::write8(const char *token)
 
   token = get_address(token, &address);
 
-  if (token == NULL) { printf("Syntax error: bad address\n"); }
+  if (token == nullptr) { printf("Syntax error: bad address\n"); }
 
   int n = address;
 
@@ -504,7 +497,7 @@ void UtilContext::write8(const char *token)
     while (*token == ' ' && *token != 0) { token++; }
 
     token = get_num(token, &num);
-    if (token == NULL) { break; }
+    if (token == nullptr) { break; }
     memory.write8(address++, num);
     count++;
   }
@@ -521,7 +514,7 @@ void UtilContext::write16(const char *token)
 
   token = get_address(token, &address);
 
-  if (token == NULL) { printf("Syntax error: bad address\n"); }
+  if (token == nullptr) { printf("Syntax error: bad address\n"); }
 
   int mask = (alignment - 1) & 0x1;
 
@@ -539,7 +532,7 @@ void UtilContext::write16(const char *token)
     while (*token == ' ' && *token != 0) { token++; }
 
     token = get_num(token, &num);
-    if (token == NULL) { break; }
+    if (token == nullptr) { break; }
     memory.write16(address, num);
     address += 2;
     count++;
@@ -557,7 +550,7 @@ void UtilContext::write32(const char *token)
 
   token = get_address(token, &address);
 
-  if (token == NULL) { printf("Syntax error: bad address\n"); }
+  if (token == nullptr) { printf("Syntax error: bad address\n"); }
 
   if ((address & (alignment - 1)) != 0)
   {
@@ -573,7 +566,7 @@ void UtilContext::write32(const char *token)
     while (*token == ' ' && *token != 0) { token++; }
 
     token = get_num(token, &num);
-    if (token == NULL) { break; }
+    if (token == nullptr) { break; }
     memory.write32(address, num);
     address += 4;
     count++;
@@ -617,7 +610,7 @@ const char *UtilContext::get_num(const char *token, uint32_t *num)
   // Skip spaces at beginning.
   while (*token == ' ' && *token != 0) { token++; }
 
-  if (*token == 0) { return NULL; }
+  if (*token == 0) { return nullptr; }
 
   // Check if number is hex.
   if (token[0] == '0' && token[1] == 'x')
@@ -629,7 +622,7 @@ const char *UtilContext::get_num(const char *token, uint32_t *num)
   s = 0;
   while (token[s] != 0) { s++; }
 
-  if (s == 0) { return NULL; }
+  if (s == 0) { return nullptr; }
 
   if (token[s-1] == 'h')
   {
@@ -655,7 +648,7 @@ const char *UtilContext::get_num(const char *token, uint32_t *num)
       else
     {
       printf("Illegal number '%s'\n", token);
-      return NULL;
+      return nullptr;
     }
 
     s++;
@@ -696,21 +689,21 @@ int UtilContext::get_range(const char *text, uint32_t *start, uint32_t *end)
   *end = 0;
 
   text = get_token(data, text);
-  if (text == NULL) { return -1; }
+  if (text == nullptr) { return -1; }
 
   // If not a - then this must be an address. Resolve it and then grab
   // another token which should be NULL or "-".
   if (data.equals("-") == false)
   {
     // Look up start_string in symbol table or use number.
-    if (get_address(data.value(), start) == NULL)
+    if (get_address(data.value(), start) == nullptr)
     {
       return -1;
     }
 
     text = get_token(data, text);
 
-    if (text == NULL)
+    if (text == nullptr)
     {
       *end = *start;
       return 0;
@@ -725,18 +718,18 @@ int UtilContext::get_range(const char *text, uint32_t *start, uint32_t *end)
 
   // Next token should be end address, if not end address is end of code.
   text = get_token(data, text);
-  if (text == NULL)
+  if (text == nullptr)
   {
     *end = memory.high_address;
     return 0;
   }
 
   // Look up end_string in symbol table or use number.
-  if (get_address(data.value(), end) == NULL) { return -1; }
+  if (get_address(data.value(), end) == nullptr) { return -1; }
 
   // Should not be any more characters at end of line.
   text = get_token(data, text);
-  if (text != NULL) { return -1; }
+  if (text != nullptr) { return -1; }
 
   return 0;
 }
@@ -750,13 +743,13 @@ void UtilContext::copy_cpu_info(CpuList *cpu_info)
   memory.endian     = cpu_info->default_endian;
   alignment         = cpu_info->alignment;
 
-  if (simulate != NULL)
+  if (simulate != nullptr)
   {
     delete simulate;
-    simulate = NULL;
+    simulate = nullptr;
   }
 
-  if (cpu_info->simulate_init != NULL)
+  if (cpu_info->simulate_init != nullptr)
   {
     simulate = cpu_info->simulate_init(&memory);
   }
@@ -790,7 +783,7 @@ const char *UtilContext::get_hex(const char *token, uint32_t *num)
       else
     {
       printf("Illegal number '%s'\n", token);
-      return NULL;
+      return nullptr;
     }
 
     s++;
@@ -821,7 +814,7 @@ const char *UtilContext::get_token(String &value, const char *source)
   }
 
   // If no characters left to parse.
-  if (value.len() == 0) { return NULL; }
+  if (value.len() == 0) { return nullptr; }
 
   return source;
 }

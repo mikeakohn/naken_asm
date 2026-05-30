@@ -95,13 +95,13 @@ class MacrosIter
 {
 public:
   MacrosIter(Macros &macros) :
-    memory_pool (NULL),
-    param_count (0),
-    name        (NULL),
-    value       (NULL),
-    ptr         (0),
-    count       (0),
-    is_done     (false)
+    memory_pool { nullptr },
+    param_count { 0 },
+    name        { nullptr },
+    value       { nullptr },
+    ptr         { 0 },
+    count       { 0 },
+    is_done     { false }
   {
     memory_pool = macros.memory_pool;
   }

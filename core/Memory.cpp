@@ -17,11 +17,11 @@
 #include "core/Memory.h"
 
 Memory::Memory() :
-  pages        (NULL),
-  low_address  (0xffffffff),
-  high_address (0),
-  entry_point  (0xffffffff),
-  endian       (ENDIAN_LITTLE)
+  pages        { nullptr },
+  low_address  { 0xffffffff },
+  high_address { 0 },
+  entry_point  { 0xffffffff },
+  endian       { ENDIAN_LITTLE }
 {
 }
 
@@ -29,21 +29,21 @@ Memory::~Memory()
 {
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     MemoryPage *next = page->next;
     delete page;
     page = next;
   }
 
-  pages = NULL;
+  pages = nullptr;
 }
 
 void Memory::clear()
 {
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     MemoryPage *next = page->next;
     memset(page->bin, 0, PAGE_SIZE);
@@ -57,7 +57,7 @@ bool Memory::in_use(uint32_t address)
 {
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -74,7 +74,7 @@ uint32_t Memory::get_page_address_min(uint32_t address)
 {
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -84,7 +84,7 @@ uint32_t Memory::get_page_address_min(uint32_t address)
     page = page->next;
   }
 
-  print_error_internal(NULL, __FILE__, __LINE__);
+  print_error_internal(nullptr, __FILE__, __LINE__);
 
   return 0;
 }
@@ -93,7 +93,7 @@ uint32_t Memory::get_page_address_max(uint32_t address)
 {
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -103,7 +103,7 @@ uint32_t Memory::get_page_address_max(uint32_t address)
     page = page->next;
   }
 
-  print_error_internal(NULL, __FILE__, __LINE__);
+  print_error_internal(nullptr, __FILE__, __LINE__);
 
   return 0;
 }
@@ -112,7 +112,7 @@ uint8_t Memory::read8(uint32_t address)
 {
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -157,14 +157,14 @@ uint32_t Memory::read32(uint32_t address)
 
 void Memory::write8(uint32_t address, uint8_t data)
 {
-  if (pages == NULL)
+  if (pages == nullptr)
   {
     pages = new MemoryPage(address);
   }
 
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     if (address >= page->address &&
         address < (uint64_t)page->address + PAGE_SIZE)
@@ -172,7 +172,7 @@ void Memory::write8(uint32_t address, uint8_t data)
       break;
     }
 
-    if (page->next == NULL)
+    if (page->next == nullptr)
     {
       page->next = new MemoryPage(address);
     }
@@ -222,7 +222,7 @@ int Memory::read_debug(uint32_t address)
 {
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
@@ -237,21 +237,21 @@ int Memory::read_debug(uint32_t address)
 
 void Memory::write_debug(uint32_t address, int line)
 {
-  if (pages == NULL)
+  if (pages == nullptr)
   {
     pages = new MemoryPage(address);
   }
 
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
       break;
     }
 
-    if (page->next == NULL)
+    if (page->next == nullptr)
     {
       page->next = new MemoryPage(address);
     }
@@ -264,21 +264,21 @@ void Memory::write_debug(uint32_t address, int line)
 
 void Memory::write(uint32_t address, uint8_t data, int line)
 {
-  if (pages == NULL)
+  if (pages == nullptr)
   {
     pages = new MemoryPage(address);
   }
 
   MemoryPage *page = pages;
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     if (address >= page->address && address < page->address + PAGE_SIZE)
     {
       break;
     }
 
-    if (page->next == NULL)
+    if (page->next == nullptr)
     {
       page->next = new MemoryPage(address);
     }
@@ -314,7 +314,7 @@ void Memory::dump()
   printf("high_address: 0x%08x\n", high_address);
   printf("      endian: %d\n", endian);
 
-  while (page != NULL)
+  while (page != nullptr)
   {
     printf("  page: %p next=%p address=0x%08x offset_min=%d offset_max=%d\n",
       page,

@@ -35,10 +35,10 @@ class MemoryPage
 {
 public:
   MemoryPage(uint32_t address) :
-    address    (address),
-    offset_min (PAGE_SIZE),
-    offset_max (0),
-    next       (NULL)
+    address    { address },
+    offset_min { PAGE_SIZE },
+    offset_max { 0 },
+    next       { nullptr }
   {
     memset(bin, 0, sizeof(bin));
     memset(debug_line, -1, sizeof(debug_line));

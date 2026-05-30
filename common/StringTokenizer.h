@@ -23,11 +23,11 @@
 class StringTokenizer
 {
 public:
-  StringTokenizer(const char *text) : text (text)
+  StringTokenizer(const char *text) : text { text }
   {
   }
 
-  StringTokenizer(String &s) : text (s.value())
+  StringTokenizer(String &s) : text { s.value() }
   {
   }
 

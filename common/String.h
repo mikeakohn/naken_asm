@@ -25,17 +25,17 @@
 class String
 {
 public:
-  String() : text (data), size (sizeof(data)), length (0)
+  String() : text { data }, size { sizeof(data) }, length { 0 }
   {
     data[0] = 0;
   }
 
-  String(const char *text) : text (data), size (sizeof(data)), length (0)
+  String(const char *text) : text { data }, size { sizeof(data) }, length { 0 }
   {
     set(text);
   }
 
-  String(String &s) : text (data), size (sizeof(data)), length (0)
+  String(String &s) : text { data }, size { sizeof(data) }, length { 0 }
   {
     this->set(s.value());
   }
@@ -127,7 +127,7 @@ public:
 
   int as_int()
   {
-    return strtol(text, NULL, 0);
+    return strtol(text, nullptr, 0);
   }
 
   int is_number()
