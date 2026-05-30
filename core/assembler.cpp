@@ -268,7 +268,7 @@ int AsmContext::assemble()
 
         token_type2 = tokens_get(this, token2, TOKENLEN);
 
-        if (strcasecmp(token2, "equ") == 0)
+        if (strcmp(token2, "equ") == 0)
         {
           //token_type2 = tokens_get(asm_context, token2, TOKENLEN);
           int ptr = 0;
@@ -343,80 +343,80 @@ int AsmContext::assemble()
 
 int AsmContext::directive(char *token)
 {
-  if (strcasecmp(token, "org") == 0)
+  if (strcmp(token, "org") == 0)
   {
     if (parse_org(this) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "db") == 0 ||
-      strcasecmp(token, "dc8") == 0 ||
-      strcasecmp(token, "ascii") == 0)
+  if (strcmp(token, "db") == 0 ||
+      strcmp(token, "dc8") == 0 ||
+      strcmp(token, "ascii") == 0)
   {
     if (parse_db(this, 0) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "asciiz") == 0)
+  if (strcmp(token, "asciiz") == 0)
   {
     if (parse_db(this, 1) != 0) { return -1; }
     return 1;
   }
     else
 #if 0
-  if (strcasecmp(token, "dc") == 0)
+  if (strcmp(token, "dc") == 0)
   {
     if (parse_dc(this) != 0) { return -1; }
     return 1;
   }
     else
 #endif
-  if (strcasecmp(token, "dw") == 0 || strcasecmp(token, "dc16") == 0)
+  if (strcmp(token, "dw") == 0 || strcmp(token, "dc16") == 0)
   {
     if (parse_dc16(this) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "dl") == 0 ||
-      strcasecmp(token, "dc32") == 0 ||
-      strcasecmp(token, "dd") == 0)
+  if (strcmp(token, "dl") == 0 ||
+      strcmp(token, "dc32") == 0 ||
+      strcmp(token, "dd") == 0)
   {
     if (parse_dc32(this) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "dc64") == 0 ||
-      strcasecmp(token, "dq") == 0)
+  if (strcmp(token, "dc64") == 0 ||
+      strcmp(token, "dq") == 0)
   {
     if (parse_dc64(this) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "varuint") == 0)
+  if (strcmp(token, "varuint") == 0)
   {
     if (parse_varuint(this, 0) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "varuint32") == 0)
+  if (strcmp(token, "varuint32") == 0)
   {
     if (parse_varuint(this, 5) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "resb") == 0)
+  if (strcmp(token, "resb") == 0)
   {
     if (parse_resb(this, 1) != 0) { return -1; }
     return 1;
   }
     else
-  if (strcasecmp(token, "resw") == 0)
+  if (strcmp(token, "resw") == 0)
   {
     if (parse_resb(this, 2) != 0) { return -1; }
     return 1;
   }
     else
-  if (cpu_type != CPU_TYPE_WEBASM && strcasecmp(token, "end") == 0)
+  if (cpu_type != CPU_TYPE_WEBASM && strcmp(token, "end") == 0)
   {
     // This is breaking webasm which has an "end" instruction.
     return 2;

@@ -305,27 +305,27 @@ int parse_directives(AsmContext *asm_context)
     return -1;
   }
 
-  if (strcasecmp(token, "define") == 0)
+  if (strcmp(token, "define") == 0)
   {
     if (macros_parse(asm_context, IS_DEFINE) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "ifdef") == 0)
+  if (strcmp(token, "ifdef") == 0)
   {
     parse_ifdef(asm_context, 0);
   }
     else
-  if (strcasecmp(token, "ifndef") == 0)
+  if (strcmp(token, "ifndef") == 0)
   {
     parse_ifdef(asm_context, 1);
   }
     else
-  if (strcasecmp(token, "if") == 0)
+  if (strcmp(token, "if") == 0)
   {
     parse_if(asm_context);
   }
     else
-  if (strcasecmp(token, "endif") == 0)
+  if (strcmp(token, "endif") == 0)
   {
     if (asm_context->ifdef_count < 1)
     {
@@ -337,7 +337,7 @@ int parse_directives(AsmContext *asm_context)
     return 0;
   }
     else
-  if (strcasecmp(token, "else") == 0)
+  if (strcmp(token, "else") == 0)
   {
     if (asm_context->ifdef_count < 1)
     {
@@ -350,7 +350,7 @@ int parse_directives(AsmContext *asm_context)
     return 4;
   }
     else
-  if (strcasecmp(token, "repeat") == 0)
+  if (strcmp(token, "repeat") == 0)
   {
     if (asm_context->in_repeat == 1)
     {
@@ -361,7 +361,7 @@ int parse_directives(AsmContext *asm_context)
     if (parse_repeat(asm_context) == -1) { return -1; }
   }
     else
-  if (strcasecmp(token, "endr") == 0)
+  if (strcmp(token, "endr") == 0)
   {
     if (asm_context->in_repeat == 0)
     {
@@ -372,78 +372,78 @@ int parse_directives(AsmContext *asm_context)
     return 3;
   }
     else
-  if (strcasecmp(token, "include") == 0)
+  if (strcmp(token, "include") == 0)
   {
     if (include_parse(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "binfile") == 0)
+  if (strcmp(token, "binfile") == 0)
   {
     if (binfile_parse(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "code") == 0)
+  if (strcmp(token, "code") == 0)
   {
     asm_context->segment = SEGMENT_CODE;
   }
     else
-  if (strcasecmp(token, "bss") == 0)
+  if (strcmp(token, "bss") == 0)
   {
     asm_context->segment = SEGMENT_BSS;
   }
     else
-  if (strcasecmp(token, "msp430_cpu4") == 0)
+  if (strcmp(token, "msp430_cpu4") == 0)
   {
     asm_context->msp430_cpu4 = 1;
   }
     else
-  if (strcasecmp(token, "macro") == 0)
+  if (strcmp(token, "macro") == 0)
   {
     if (macros_parse(asm_context, IS_MACRO) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "pragma") == 0)
+  if (strcmp(token, "pragma") == 0)
   {
     if (parse_pragma(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "device") == 0)
+  if (strcmp(token, "device") == 0)
   {
     if (parse_device(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "set") == 0)
+  if (strcmp(token, "set") == 0)
   {
     if (parse_set(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "export") == 0)
+  if (strcmp(token, "export") == 0)
   {
     if (parse_export(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "entry_point") == 0)
+  if (strcmp(token, "entry_point") == 0)
   {
     if (parse_entry_point(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "align") == 0 ||
-      strcasecmp(token, "align_bits") == 0)
+  if (strcmp(token, "align") == 0 ||
+      strcmp(token, "align_bits") == 0)
   {
     if (parse_align_bits(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "align_bytes") == 0)
+  if (strcmp(token, "align_bytes") == 0)
   {
     if (parse_align_bytes(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "equ") == 0 || strcasecmp(token, "def") == 0)
+  if (strcmp(token, "equ") == 0 || strcmp(token, "def") == 0)
   {
     if (parse_equ(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "scope") == 0)
+  if (strcmp(token, "scope") == 0)
   {
     if (asm_context->symbols.scope_start() != 0)
     {
@@ -454,12 +454,12 @@ int parse_directives(AsmContext *asm_context)
     }
   }
     else
-  if (strcasecmp(token, "ends") == 0)
+  if (strcmp(token, "ends") == 0)
   {
     asm_context->symbols.scope_end();
   }
     else
-  if (strcasecmp(token, "func") == 0)
+  if (strcmp(token, "func") == 0)
   {
     char token[TOKENLEN];
     //int token_type;
@@ -478,32 +478,32 @@ int parse_directives(AsmContext *asm_context)
     }
   }
     else
-  if (strcasecmp(token, "endf") == 0)
+  if (strcmp(token, "endf") == 0)
   {
     asm_context->symbols.scope_end();
   }
     else
-  if (strcasecmp(token, "low_address") == 0)
+  if (strcmp(token, "low_address") == 0)
   {
     if (parse_low_address(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "high_address") == 0)
+  if (strcmp(token, "high_address") == 0)
   {
     if (parse_high_address(asm_context) != 0) { return -1; }
   }
     else
-  if (strcasecmp(token, "big_endian") == 0)
+  if (strcmp(token, "big_endian") == 0)
   {
     asm_context->memory.endian = ENDIAN_BIG;
   }
     else
-  if (strcasecmp(token, "little_endian") == 0)
+  if (strcmp(token, "little_endian") == 0)
   {
     asm_context->memory.endian = ENDIAN_LITTLE;
   }
     else
-  if (strcasecmp(token, "list") == 0)
+  if (strcmp(token, "list") == 0)
   {
     if (asm_context->pass == 2 && asm_context->list != NULL)
     {
@@ -512,7 +512,7 @@ int parse_directives(AsmContext *asm_context)
     }
   }
     else
-  if (strcasecmp(token, "data_fill") == 0)
+  if (strcmp(token, "data_fill") == 0)
   {
     if (parse_data_fill(asm_context) != 0) { return -1; }
   }
